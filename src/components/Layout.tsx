@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, TrendingUp, Newspaper, Briefcase, Gamepad2, Globe, Moon, Sun, FolderOpen, Shapes } from 'lucide-react'
+import { Home, TrendingUp, Newspaper, Briefcase, Gamepad2, Globe, Moon, Sun, FolderOpen, Paintbrush, BookOpen } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 interface LayoutProps {
@@ -16,14 +16,16 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/news', label: 'News Curator', icon: Newspaper },
     { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/games', label: 'Games', icon: Gamepad2 },
-    { path: '/geometry', label: 'Geometry', icon: Shapes },
+    { path: '/pokedex', label: 'Pokédex', icon: BookOpen },
+    { path: '/battle', label: 'Battle', icon: Gamepad2 },
+    { path: '/geometry', label: 'Paint', icon: Paintbrush },
     { path: '/switch', label: 'Switch', icon: Gamepad2 },
     { path: '/browser', label: 'Browser', icon: Globe },
     { path: '/files', label: 'Files', icon: FolderOpen },
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors flex flex-col">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,12 +93,12 @@ export default function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
             © {new Date().getFullYear()} Nicholas. Built with React & TypeScript.

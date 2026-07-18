@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Newspaper, Briefcase, Gamepad2, Globe, Moon, Sun, FolderOpen, Paintbrush, BookOpen } from 'lucide-react'
+import { Home, Newspaper, Briefcase, Gamepad2, Moon, Sun, BookOpen } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 interface LayoutProps {
@@ -13,14 +13,9 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/daybreak', label: 'Daybreak', icon: Newspaper },
-    { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/games', label: 'Games', icon: Gamepad2 },
     { path: '/pokedex', label: 'Pokédex', icon: BookOpen },
-    { path: '/battle', label: 'Battle', icon: Gamepad2 },
-    { path: '/geometry', label: 'Paint', icon: Paintbrush },
-    { path: '/switch', label: 'Switch', icon: Gamepad2 },
-    { path: '/browser', label: 'Browser', icon: Globe },
-    { path: '/files', label: 'Files', icon: FolderOpen },
+    { path: '/projects', label: 'Projects', icon: Briefcase },
   ]
 
   return (

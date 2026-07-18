@@ -4,13 +4,8 @@ import Layout from './components/Layout'
 import Home from './pages/Home'
 import Daybreak from './pages/Daybreak'
 import Projects from './pages/Projects'
-import SwitchDisplay from './pages/SwitchDisplay'
-import Browser from './pages/Browser'
-import FileBrowser from './pages/FileBrowser'
 import Games from './pages/Games'
-import GeometrySandbox from './pages/GeometrySandbox'
 import Pokedex from './pages/Pokedex'
-import Battle from './pages/Battle'
 
 function App() {
   return (
@@ -21,13 +16,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/daybreak" element={<Daybreak />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/switch" element={<SwitchDisplay />} />
-            <Route path="/browser" element={<Browser />} />
-            <Route path="/files" element={<FileBrowser />} />
             <Route path="/games" element={<Games />} />
-            <Route path="/geometry" element={<GeometrySandbox />} />
             <Route path="/pokedex" element={<Pokedex />} />
-            <Route path="/battle" element={<Battle />} />
           </Routes>
         </Layout>
       </Router>

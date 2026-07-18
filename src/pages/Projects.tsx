@@ -26,13 +26,14 @@ export default function Projects() {
       status: 'completed',
     },
     {
-      id: 'ops-dashboard',
-      title: 'Operational Analytics Dashboard',
-      description: 'Data-driven management tool for retail/food service operations',
-      longDescription: 'An executive-level analytics dashboard designed for retail and food service management. Tracks sales trends, labor metrics, inventory costs, and operational KPIs. Built to demonstrate data-driven decision making in operations management.',
-      tags: ['React', 'Analytics', 'Data Visualization', 'Operations'],
+      id: 'portfolio-hub',
+      title: 'This Website',
+      description: 'The portfolio site you\'re on right now',
+      longDescription: 'A single-page portfolio built from scratch with React, TypeScript, Vite, and TailwindCSS. Includes dark mode, browser games, a Pokédex, and a live embed of the Daybreak news reader. Deployed on GitHub Pages.',
+      tags: ['React', 'TypeScript', 'Vite', 'TailwindCSS'],
       icon: Code,
-      status: 'planned',
+      githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
+      status: 'completed',
     },
   ]
 

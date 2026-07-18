@@ -55,21 +55,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">About Me</h2>
-        <div className="prose prose-lg text-gray-600 dark:text-gray-300">
-          <p>
-            CS degree from Penn State. Took a job at Sheetz after graduation and found I genuinely
-            enjoy the management side of things. Still want to end up in tech eventually, just taking
-            a different path to get there.
-          </p>
-          <p className="mt-4">
-            This is stuff I work on outside of work. Analytics, automation, some web projects.
-            Keeps me sharp.
-          </p>
-        </div>
-      </section>
+      {/* About Section - intentionally empty for now; content TBD */}
 
       {/* Features Grid */}
       <section>

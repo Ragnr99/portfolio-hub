@@ -1,4 +1,4 @@
-import { ExternalLink, Github, Code, BarChart3, Newspaper } from 'lucide-react'
+import { ExternalLink, Github, Code, Newspaper } from 'lucide-react'
 
 interface Project {
   id: string
@@ -15,23 +15,14 @@ interface Project {
 export default function Projects() {
   const projects: Project[] = [
     {
-      id: 'stock-tracker',
-      title: 'Stock Portfolio Tracker',
-      description: 'Real-time stock market tracking with simulated trading capabilities',
-      longDescription: 'A full-featured stock tracking application that allows users to monitor real-time market data, create watchlists, and simulate portfolio trades. Features interactive charts, portfolio analytics, and gain/loss tracking.',
-      tags: ['React', 'TypeScript', 'Recharts', 'Financial APIs'],
-      icon: BarChart3,
-      demoUrl: '/stocks',
-      status: 'completed',
-    },
-    {
-      id: 'news-curator',
-      title: 'News Curator Platform',
-      description: 'Personalized news aggregation with category-based filtering',
-      longDescription: 'A curated news platform that aggregates headlines from multiple sources, allowing users to filter by category and search for specific topics. Designed to provide a customized news reading experience similar to Ground News.',
-      tags: ['React', 'News API', 'TailwindCSS', 'TypeScript'],
+      id: 'daybreak',
+      title: 'Daybreak',
+      description: 'A spectrum-aware news reader with media-diet tracking and live markets',
+      longDescription: 'A calm, private news reader that pulls ~800 articles a day from ~45 sources across the political spectrum, color-codes every story by lean, and extracts full article text for in-app reading. Detects blindspots (stories one side ignores), groups the same story across left/center/right, tracks your reading balance with a weekly score, and includes a markets watchlist with interactive price charts. Story clustering runs on-device with pure text similarity - no AI, no accounts, no tracking.',
+      tags: ['Python', 'Story Clustering', 'RSS', 'Data Visualization'],
       icon: Newspaper,
-      demoUrl: '/news',
+      demoUrl: '/daybreak',
+      githubUrl: 'https://github.com/Ragnr99/daily-news',
       status: 'completed',
     },
     {

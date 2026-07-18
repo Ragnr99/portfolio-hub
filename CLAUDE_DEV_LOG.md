@@ -490,3 +490,21 @@ npm run lint
 ---
 
 **End of Developer Log**
+
+---
+
+## Session: 2026-07-17 (Claude)
+
+**Daybreak integration + cleanup**
+
+- Fixed the blank-site bug: `Battle.tsx` imported TS interfaces (`Ability`,
+  `Nature`, `EVSpread`, `IVSpread`) as runtime values; split into
+  `import type`. App now boots.
+- Removed Stock Tracker and News Curator (pages, routes, nav, Home cards,
+  Projects entries). Daybreak replaces both.
+- Added `/daybreak` page: embeds the Daybreak reader from its local web
+  server (`py -3.10 webapi.py` in PycharmProjects/daily-news, port 8899)
+  via iframe, with a friendly "server not running" fallback + retry.
+- Projects page now features Daybreak with the GitHub link.
+- Known pre-existing TS errors remain in games/ThemeContext/Battle (dev
+  server unaffected).

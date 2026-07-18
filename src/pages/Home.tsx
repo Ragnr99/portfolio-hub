@@ -1,21 +1,14 @@
 import { Link } from 'react-router-dom'
-import { TrendingUp, Newspaper, Briefcase, ArrowRight } from 'lucide-react'
+import { Newspaper, Briefcase, ArrowRight } from 'lucide-react'
 
 export default function Home() {
   const features = [
     {
-      title: 'Stock Tracker',
-      description: 'Track real-time stock prices and manage a simulated portfolio with live market data.',
-      icon: TrendingUp,
-      path: '/stocks',
-      color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-    },
-    {
-      title: 'News Curator',
-      description: 'Stay informed with curated news feeds from top sources across multiple categories.',
+      title: 'Daybreak',
+      description: 'A calm news reader that shows every story\'s political lean, tracks your media diet, and follows the markets.',
       icon: Newspaper,
-      path: '/news',
-      color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+      path: '/daybreak',
+      color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
     },
     {
       title: 'Projects',

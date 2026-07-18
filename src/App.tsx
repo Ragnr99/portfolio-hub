@@ -2,8 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
 import Home from './pages/Home'
-import StockTracker from './pages/StockTracker'
-import NewsCurator from './pages/NewsCurator'
+import Daybreak from './pages/Daybreak'
 import Projects from './pages/Projects'
 import SwitchDisplay from './pages/SwitchDisplay'
 import Browser from './pages/Browser'
@@ -20,8 +19,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/stocks" element={<StockTracker />} />
-            <Route path="/news" element={<NewsCurator />} />
+            <Route path="/daybreak" element={<Daybreak />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/switch" element={<SwitchDisplay />} />
             <Route path="/browser" element={<Browser />} />

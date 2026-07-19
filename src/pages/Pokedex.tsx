@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Search, ChevronDown, ChevronUp } from 'lucide-react'
-import { usePokemonData } from '../hooks/usePokemonData'
 import { TYPE_COLORS } from '../utils/pokemonConstants'
 
 interface PokemonBasic {
@@ -193,63 +192,39 @@ export default function Pokedex() {
     filterPokemonList()
   }, [searchQuery, selectedRegion, pokemonList])
 
-  useEffect(() => {
-    // Load basic data for filtered pokemon
-    loadBasicDataForFiltered()
-  }, [filteredPokemon])
-
+  // The grid loads entirely from the bundled dataset (all 1,025 with sprites
+  // and stats) - no per-pokemon API calls, no rate limits. PokeAPI is only
+  // touched when you open one pokemon's full detail view.
   const fetchPokemonList = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1025')
-      const data = await response.json()
-      setPokemonList(data.results)
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching Pokemon list:', error)
-      setLoading(false)
-    }
-  }
-
-  const loadBasicDataForFiltered = async () => {
-    // Load basic data for filtered Pokemon (for display in list)
-    const region = regions.find(r => r.value === selectedRegion)
-    if (!region) return
-
-    const startId = region.range[0]
-    const endId = region.range[1]
-
-    // Fetch basic data for Pokemon in this region if not already loaded
-    for (let id = startId; id <= Math.min(endId, startId + 50); id++) {
-      if (!pokemonBasicData.has(id)) {
-        fetchBasicPokemonData(id)
-      }
-    }
-  }
-
-  const fetchBasicPokemonData = async (id: number) => {
-    try {
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+      const response = await fetch(`${import.meta.env.BASE_URL}pokemon-data.json`)
       const data = await response.json()
 
-      const basic: PokemonBasic = {
-        id: data.id,
-        name: data.name,
-        types: data.types.map((t: any) => t.type.name),
-        stats: {
-          hp: data.stats[0].base_stat,
-          attack: data.stats[1].base_stat,
-          defense: data.stats[2].base_stat,
-          specialAttack: data.stats[3].base_stat,
-          specialDefense: data.stats[4].base_stat,
-          speed: data.stats[5].base_stat,
-        },
-        sprite: data.sprites.front_default
-      }
-
-      setPokemonBasicData(prev => new Map(prev).set(id, basic))
+      const basics = new Map<number, PokemonBasic>()
+      const list: PokemonListItem[] = data.map((p: any) => {
+        basics.set(p.id, {
+          id: p.id,
+          name: p.name,
+          types: p.types,
+          stats: {
+            hp: p.stats.hp,
+            attack: p.stats.attack,
+            defense: p.stats.defense,
+            specialAttack: p.stats.spAttack,
+            specialDefense: p.stats.spDefense,
+            speed: p.stats.speed,
+          },
+          sprite: p.sprite,
+        })
+        return { name: p.name, url: `https://pokeapi.co/api/v2/pokemon/${p.id}`, id: p.id }
+      })
+      setPokemonBasicData(basics)
+      setPokemonList(list)
+      setLoading(false)
     } catch (error) {
-      console.error(`Error fetching basic data for Pokemon ${id}:`, error)
+      console.error('Error loading Pokemon data:', error)
+      setLoading(false)
     }
   }
 
@@ -294,12 +269,6 @@ export default function Pokedex() {
 
         for (const pokemon of filtered) {
           const id = pokemon.id!
-
-          // Load basic data if not already loaded (for type checking)
-          if (!pokemonBasicData.has(id)) {
-            await fetchBasicPokemonData(id)
-          }
-
           const basicData = pokemonBasicData.get(id)
 
           // Check if type matches
@@ -482,7 +451,7 @@ export default function Pokedex() {
     'scarlet-violet': 9
   }
 
-  const fetchMoves = async (movesList: any[], pokemonId: number): Promise<MoveLearnset> => {
+  const fetchMoves = async (movesList: any[], _pokemonId: number): Promise<MoveLearnset> => {
     const levelUpMap = new Map<string, LevelUpMove>()
     const tmMap = new Map<string, TMMove>()
     const egg: string[] = []
@@ -548,7 +517,7 @@ export default function Pokedex() {
     return { levelUp, tm, egg, tutor }
   }
 
-  const handlePokemonClick = async (pokemon: PokemonListItem, index: number) => {
+  const handlePokemonClick = async (pokemon: PokemonListItem, _index: number) => {
     const id = pokemon.id || 0
 
     if (selectedPokemon?.id === id) {

@@ -57,7 +57,8 @@ export function usePokemonData() {
     }
 
     // Case 3: First time loading - fetch the data
-    cachePromise = fetch('/pokemon-data.json').then(r => r.json())
+    // BASE_URL-aware: the site deploys under /portfolio-hub/ on GitHub Pages
+    cachePromise = fetch(`${import.meta.env.BASE_URL}pokemon-data.json`).then(r => r.json())
 
     try {
       const data = await cachePromise

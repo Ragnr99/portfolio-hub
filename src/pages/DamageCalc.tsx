@@ -33,6 +33,16 @@ const STAT_KEYS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'] as const
 const STAT_LABELS: Record<string, string> = { hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe' }
 const BOOST_KEYS = ['atk', 'def', 'spa', 'spd'] as const
 
+// one-click fundamental builds: the spreads 90% of real sets are built from
+const PRESETS: { label: string; nature: string; evs: Record<string, number> }[] = [
+  { label: 'Phys. Sweeper', nature: 'Jolly', evs: { hp: 0, atk: 252, def: 0, spa: 0, spd: 4, spe: 252 } },
+  { label: 'Spec. Sweeper', nature: 'Timid', evs: { hp: 0, atk: 0, def: 0, spa: 252, spd: 4, spe: 252 } },
+  { label: 'Bulky Phys.', nature: 'Adamant', evs: { hp: 252, atk: 252, def: 0, spa: 0, spd: 4, spe: 0 } },
+  { label: 'Bulky Spec.', nature: 'Modest', evs: { hp: 252, atk: 0, def: 0, spa: 252, spd: 4, spe: 0 } },
+  { label: 'Phys. Wall', nature: 'Impish', evs: { hp: 252, atk: 0, def: 252, spa: 0, spd: 4, spe: 0 } },
+  { label: 'Spec. Wall', nature: 'Calm', evs: { hp: 252, atk: 0, def: 4, spa: 0, spd: 252, spe: 0 } },
+]
+
 interface SideState {
   species: string
   level: number
@@ -304,6 +314,24 @@ function PokemonPanel({ side, setSide, title, sprites, rows, onFocusRow, focused
             {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </label>
+      </div>
+
+      {/* preset builds */}
+      <div className="flex flex-wrap gap-1.5">
+        {PRESETS.map((p) => (
+          <button
+            key={p.label}
+            onClick={() => set({ nature: p.nature, evs: { ...p.evs } })}
+            title={`${p.nature} · ${Object.entries(p.evs).filter(([, v]) => v > 0).map(([k, v]) => `${v} ${STAT_LABELS[k]}`).join(' / ')}`}
+            className="px-2.5 py-1 text-[11px] font-medium rounded-full border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
+          >
+            {p.label}
+          </button>
+        ))}
+        <button onClick={() => set({ level: side.level === 50 ? 100 : 50 })}
+          className="px-2.5 py-1 text-[11px] font-medium rounded-full border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
+          Lv {side.level === 50 ? 100 : 50}
+        </button>
       </div>
 
       {/* EVs */}

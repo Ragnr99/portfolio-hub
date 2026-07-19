@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Newspaper, Briefcase, Gamepad2, Moon, Sun, BookOpen } from 'lucide-react'
+import { Home, Newspaper, Briefcase, Gamepad2, Moon, Sun, BookOpen, Github, Linkedin } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 interface LayoutProps {
@@ -13,22 +13,24 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/daybreak', label: 'Daybreak', icon: Newspaper },
-    { path: '/games', label: 'Games', icon: Gamepad2 },
+    { path: '/games', label: 'Arcade', icon: Gamepad2 },
     { path: '/pokedex', label: 'Pokédex', icon: BookOpen },
     { path: '/projects', label: 'Projects', icon: Briefcase },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors flex flex-col">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      {/* Header: sticky, frosted */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/70 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">N</span>
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 via-sky-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-md shadow-sky-500/20 group-hover:shadow-sky-500/40 transition-shadow">
+                <span className="text-white font-bold text-lg font-display">N</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900 dark:text-white">Nicholas Portfolio</span>
+              <span className="text-lg font-semibold font-display tracking-tight text-gray-900 dark:text-white">
+                Nicholas Lubold
+              </span>
             </Link>
 
             <div className="flex items-center gap-4">
@@ -39,8 +41,8 @@ export default function Layout({ children }: LayoutProps) {
                     to={path}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                       location.pathname === path
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     <Icon size={18} />
@@ -49,10 +51,9 @@ export default function Layout({ children }: LayoutProps) {
                 ))}
               </nav>
 
-              {/* Dark Mode Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 aria-label="Toggle dark mode"
               >
                 {theme === 'light' ? (
@@ -67,7 +68,7 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <nav className="md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <div className="flex justify-around">
           {navItems.map(({ path, label, icon: Icon }) => (
             <Link
@@ -75,7 +76,7 @@ export default function Layout({ children }: LayoutProps) {
               to={path}
               className={`flex flex-col items-center py-3 px-4 flex-1 ${
                 location.pathname === path
-                  ? 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
+                  ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60'
                   : 'text-gray-600 dark:text-gray-300'
               }`}
             >
@@ -92,10 +93,40 @@ export default function Layout({ children }: LayoutProps) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
-            © {new Date().getFullYear()} Nicholas. Built with React & TypeScript.
+      <footer className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 via-sky-500 to-cyan-400 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xs font-display">N</span>
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Nicholas Lubold · builds tools, games, and the occasional news reader
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href="https://github.com/Ragnr99"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <Github size={18} />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nicholas-lubold"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <Linkedin size={18} />
+              </a>
+            </div>
+          </div>
+          <p className="text-center sm:text-left text-xs text-gray-400 dark:text-gray-600 mt-4">
+            © {new Date().getFullYear()} Nicholas Lubold. Hand-built with React, TypeScript, and stubbornness.
           </p>
         </div>
       </footer>

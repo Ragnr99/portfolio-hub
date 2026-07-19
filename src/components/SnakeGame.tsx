@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { RotateCcw, Play, Pause, Settings } from 'lucide-react'
 import ControlsModal from './ControlsModal'
 import type { GameControls } from '../types/controls'
+import { getHighScore, submitScore } from '../utils/highscores'
 
 interface Position {
   x: number
@@ -12,6 +13,8 @@ export default function SnakeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [gameState, setGameState] = useState<'playing' | 'paused' | 'gameOver'>('paused')
   const [score, setScore] = useState(0)
+  const [best, setBest] = useState(() => getHighScore('snake'))
+  const [newRecord, setNewRecord] = useState(false)
   const [showControls, setShowControls] = useState(false)
   const [controls, setControls] = useState<GameControls>({
     up: 'ArrowUp',
@@ -24,8 +27,17 @@ export default function SnakeGame() {
   const directionRef = useRef<Position>({ x: 1, y: 0 })
   const nextDirectionRef = useRef<Position>({ x: 1, y: 0 })
   const foodRef = useRef<Position>({ x: 15, y: 15 })
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number>(0)
   const lastMoveTimeRef = useRef<number>(0)
+
+  useEffect(() => {
+    if (gameState === 'gameOver') {
+      setNewRecord(submitScore('snake', score))
+      setBest(getHighScore('snake'))
+    } else if (gameState === 'playing') {
+      setNewRecord(false)
+    }
+  }, [gameState, score])
 
   const GRID_SIZE = 20
   const CELL_SIZE = 25
@@ -212,6 +224,10 @@ export default function SnakeGame() {
             <div className="text-sm text-gray-600 dark:text-gray-300">Length</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{snakeRef.current.length}</div>
           </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 border border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-300">Best</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{best}</div>
+          </div>
         </div>
         <div className="flex gap-2">
           <button
@@ -269,7 +285,9 @@ export default function SnakeGame() {
 
       {gameState === 'gameOver' && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-          <h3 className="text-2xl font-bold text-red-900 dark:text-red-300 mb-2">Game Over!</h3>
+          <h3 className="text-2xl font-bold text-red-900 dark:text-red-300 mb-2">
+            {newRecord ? '🏆 New High Score!' : 'Game Over!'}
+          </h3>
           <p className="text-red-800 dark:text-red-200 mb-4">Final Score: {score}</p>
           <button
             onClick={resetGame}

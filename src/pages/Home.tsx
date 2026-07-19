@@ -32,7 +32,7 @@ export default function Home() {
           Welcome to My Portfolio
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Kitchen Manager at Sheetz transitioning to tech. Passionate about data analytics,
+          Manager at Sheetz with a serious interest in tech. Passionate about data analytics,
           automation, and building tools that solve real problems.
         </p>
         <div className="flex justify-center gap-4 pt-4">

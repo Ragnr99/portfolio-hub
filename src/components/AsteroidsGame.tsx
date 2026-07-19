@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { RotateCcw, Play, Pause, Settings } from 'lucide-react'
 import ControlsModal from './ControlsModal'
 import type { GameControls } from '../types/controls'
+import { getHighScore, submitScore } from '../utils/highscores'
 
 interface Vector {
   x: number
@@ -32,6 +33,8 @@ export default function AsteroidsGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [gameState, setGameState] = useState<'playing' | 'paused' | 'gameOver'>('paused')
   const [score, setScore] = useState(0)
+  const [best, setBest] = useState(() => getHighScore('asteroids'))
+  const [newRecord, setNewRecord] = useState(false)
   const [lives, setLives] = useState(3)
   const [level, setLevel] = useState(1)
   const [showControls, setShowControls] = useState(false)
@@ -52,7 +55,17 @@ export default function AsteroidsGame() {
   const asteroidsRef = useRef<Asteroid[]>([])
   const bulletsRef = useRef<Bullet[]>([])
   const keysRef = useRef<{ [key: string]: boolean }>({})
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number>(0)
+
+  useEffect(() => {
+    if (gameState === 'gameOver') {
+      setNewRecord(submitScore('asteroids', score))
+      setBest(getHighScore('asteroids'))
+    } else if (gameState === 'playing') {
+      setNewRecord(false)
+    }
+  }, [gameState, score])
+
 
   const CANVAS_WIDTH = 800
   const CANVAS_HEIGHT = 600
@@ -346,6 +359,10 @@ export default function AsteroidsGame() {
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{level}</div>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 border border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-300">Best</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{best}</div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 border border-gray-200 dark:border-gray-700">
             <div className="text-sm text-gray-600 dark:text-gray-300">Asteroids</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{asteroidsRef.current.length}</div>
           </div>
@@ -406,7 +423,9 @@ export default function AsteroidsGame() {
 
       {gameState === 'gameOver' && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-          <h3 className="text-2xl font-bold text-red-900 dark:text-red-300 mb-2">Game Over!</h3>
+          <h3 className="text-2xl font-bold text-red-900 dark:text-red-300 mb-2">
+            {newRecord ? '🏆 New High Score!' : 'Game Over!'}
+          </h3>
           <p className="text-red-800 dark:text-red-200 mb-4">Final Score: {score}</p>
           <button
             onClick={resetGame}

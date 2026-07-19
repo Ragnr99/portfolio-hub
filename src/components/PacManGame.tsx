@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { RotateCcw, Play, Pause, Settings } from 'lucide-react'
 import ControlsModal from './ControlsModal'
 import type { GameControls } from '../types/controls'
+import { getHighScore, submitScore } from '../utils/highscores'
 
 interface Position {
   x: number
@@ -18,6 +19,8 @@ export default function PacManGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [gameState, setGameState] = useState<'playing' | 'paused' | 'gameOver' | 'won'>('paused')
   const [score, setScore] = useState(0)
+  const [best, setBest] = useState(() => getHighScore('pacman'))
+  const [newRecord, setNewRecord] = useState(false)
   const [lives, setLives] = useState(3)
   const [showControls, setShowControls] = useState(false)
   const [controls, setControls] = useState<GameControls>({
@@ -34,7 +37,17 @@ export default function PacManGame() {
   const pelletsRef = useRef<boolean[][]>([])
   const powerPelletsRef = useRef<Position[]>([])
   const powerModeRef = useRef<number>(0)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number>(0)
+
+  useEffect(() => {
+    if (gameState === 'gameOver' || gameState === 'won') {
+      setNewRecord(submitScore('pacman', score))
+      setBest(getHighScore('pacman'))
+    } else if (gameState === 'playing') {
+      setNewRecord(false)
+    }
+  }, [gameState, score])
+
   const lastMoveTimeRef = useRef<number>(0)
   const mouthOpenRef = useRef<boolean>(true)
 
@@ -207,7 +220,7 @@ export default function PacManGame() {
       }
 
       // Check ghost collision
-      ghostsRef.current.forEach((ghost, index) => {
+      ghostsRef.current.forEach((ghost) => {
         if (ghost.pos.x === pacman.x && ghost.pos.y === pacman.y) {
           if (powerModeRef.current > 0) {
             // Eat ghost
@@ -443,6 +456,10 @@ export default function PacManGame() {
             <div className="text-sm text-gray-600 dark:text-gray-300">Lives</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{lives}</div>
           </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 border border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-300">Best</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{best}</div>
+          </div>
           {powerModeRef.current > 0 && (
             <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-lg px-4 py-2 border border-yellow-300 dark:border-yellow-700">
               <div className="text-sm text-yellow-700 dark:text-yellow-300">Power Mode!</div>
@@ -506,7 +523,9 @@ export default function PacManGame() {
 
       {gameState === 'gameOver' && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-          <h3 className="text-2xl font-bold text-red-900 dark:text-red-300 mb-2">Game Over!</h3>
+          <h3 className="text-2xl font-bold text-red-900 dark:text-red-300 mb-2">
+            {newRecord ? '🏆 New High Score!' : 'Game Over!'}
+          </h3>
           <p className="text-red-800 dark:text-red-200 mb-4">Final Score: {score}</p>
           <button
             onClick={resetGame}
@@ -519,7 +538,9 @@ export default function PacManGame() {
 
       {gameState === 'won' && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
-          <h3 className="text-2xl font-bold text-green-900 dark:text-green-300 mb-2">You Won!</h3>
+          <h3 className="text-2xl font-bold text-green-900 dark:text-green-300 mb-2">
+            {newRecord ? '🏆 You Won - New High Score!' : 'You Won!'}
+          </h3>
           <p className="text-green-800 dark:text-green-200 mb-4">Final Score: {score}</p>
           <button
             onClick={resetGame}

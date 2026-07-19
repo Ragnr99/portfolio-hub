@@ -1,4 +1,5 @@
-import { ExternalLink, Github, Code, Newspaper } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Github, Code, Newspaper, Gamepad2 } from 'lucide-react'
 
 interface Project {
   id: string
@@ -7,171 +8,140 @@ interface Project {
   longDescription: string
   tags: string[]
   icon: React.ComponentType<{ size?: number; className?: string }>
-  demoUrl?: string
+  accent: string          // tailwind gradient for the banner
+  iconTint: string
+  demoUrl?: string        // in-app route
+  demoLabel?: string
   githubUrl?: string
-  status: 'completed' | 'in-progress' | 'planned'
+  status: 'Shipped' | 'In Progress'
 }
 
+const PROJECTS: Project[] = [
+  {
+    id: 'daybreak',
+    title: 'Daybreak',
+    description: 'A spectrum-aware news reader with media-diet tracking and live markets',
+    longDescription:
+      'A calm, private desktop news reader that pulls ~800 articles a day from ~45 sources across the political spectrum, color-codes every story by lean, and extracts full article text for in-app reading. Detects blindspots, groups the same story across left/center/right, scores your weekly reading balance, and tracks markets with interactive charts. Pure-text clustering on-device: no AI, no accounts, no tracking. Ships as a standalone Windows app with a 57-test suite behind it.',
+    tags: ['Python', 'Story Clustering', 'RSS', 'Data Visualization', 'PyInstaller'],
+    icon: Newspaper,
+    accent: 'from-orange-500 via-amber-400 to-rose-500',
+    iconTint: 'bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-300',
+    demoUrl: '/daybreak',
+    demoLabel: 'Try Daybreak',
+    githubUrl: 'https://github.com/Ragnr99/daily-news',
+    status: 'Shipped',
+  },
+  {
+    id: 'arcade',
+    title: 'The Arcade',
+    description: 'Six retro games hand-built on HTML5 Canvas, zero libraries',
+    longDescription:
+      'Tetris, Breakout, Flappy, Asteroids, Snake, and Pac-Man, every one written from scratch in TypeScript on raw canvas. Real game-loop architecture (fixed-step updates over requestAnimationFrame), particle effects, 7-bag randomizers, wall kicks, and local high scores. No engines, no dependencies.',
+    tags: ['TypeScript', 'HTML5 Canvas', 'Game Loops', 'Zero Dependencies'],
+    icon: Gamepad2,
+    accent: 'from-fuchsia-500 via-purple-500 to-cyan-400',
+    iconTint: 'bg-fuchsia-100 dark:bg-fuchsia-900/40 text-fuchsia-600 dark:text-fuchsia-300',
+    demoUrl: '/games',
+    demoLabel: 'Enter the Arcade',
+    githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
+    status: 'Shipped',
+  },
+  {
+    id: 'portfolio-hub',
+    title: 'This Website',
+    description: 'The site you are on right now',
+    longDescription:
+      'Single-page portfolio built with React, TypeScript, Vite, and TailwindCSS. Dark mode, a full Pokédex and battle simulator, the arcade, and a live embed of the Daybreak reader. Deployed to GitHub Pages with a one-command build-and-ship script.',
+    tags: ['React', 'TypeScript', 'Vite', 'TailwindCSS', 'GitHub Pages'],
+    icon: Code,
+    accent: 'from-blue-500 via-sky-400 to-indigo-500',
+    iconTint: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300',
+    githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
+    status: 'In Progress',
+  },
+]
+
 export default function Projects() {
-  const projects: Project[] = [
-    {
-      id: 'daybreak',
-      title: 'Daybreak',
-      description: 'A spectrum-aware news reader with media-diet tracking and live markets',
-      longDescription: 'A calm, private news reader that pulls ~800 articles a day from ~45 sources across the political spectrum, color-codes every story by lean, and extracts full article text for in-app reading. Detects blindspots (stories one side ignores), groups the same story across left/center/right, tracks your reading balance with a weekly score, and includes a markets watchlist with interactive price charts. Story clustering runs on-device with pure text similarity - no AI, no accounts, no tracking.',
-      tags: ['Python', 'Story Clustering', 'RSS', 'Data Visualization'],
-      icon: Newspaper,
-      demoUrl: '/daybreak',
-      githubUrl: 'https://github.com/Ragnr99/daily-news',
-      status: 'completed',
-    },
-    {
-      id: 'portfolio-hub',
-      title: 'This Website',
-      description: 'The portfolio site you\'re on right now',
-      longDescription: 'A single-page portfolio built from scratch with React, TypeScript, Vite, and TailwindCSS. Includes dark mode, browser games, a Pokédex, and a live embed of the Daybreak news reader. Deployed on GitHub Pages.',
-      tags: ['React', 'TypeScript', 'Vite', 'TailwindCSS'],
-      icon: Code,
-      githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
-      status: 'completed',
-    },
-  ]
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-700'
-      case 'in-progress':
-        return 'bg-yellow-100 text-yellow-700'
-      case 'planned':
-        return 'bg-gray-100 text-gray-700'
-      default:
-        return 'bg-gray-100 text-gray-700'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'Completed'
-      case 'in-progress':
-        return 'In Progress'
-      case 'planned':
-        return 'Planned'
-      default:
-        return status
-    }
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Projects</h1>
-        <p className="text-gray-600">
-          A showcase of my coding projects, tools, and technical experiments
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Projects</h1>
+        <p className="text-gray-600 dark:text-gray-300">
+          Things I've actually built and shipped, not a wishlist.
         </p>
       </div>
 
-      {/* Project Stats */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">Total Projects</span>
-            <Code className="text-blue-600" size={20} />
-          </div>
-          <p className="text-3xl font-bold text-gray-900">{projects.length}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">Completed</span>
-          </div>
-          <p className="text-3xl font-bold text-green-600">
-            {projects.filter(p => p.status === 'completed').length}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">In Progress</span>
-          </div>
-          <p className="text-3xl font-bold text-yellow-600">
-            {projects.filter(p => p.status === 'in-progress').length}
-          </p>
-        </div>
-      </div>
-
-      {/* Projects Grid */}
-      <div className="space-y-6">
-        {projects.map((project) => {
+      <div className="space-y-8">
+        {PROJECTS.map((project) => {
           const Icon = project.icon
           return (
             <div
               key={project.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+              className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700
+                         overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon size={24} />
+              {/* accent banner */}
+              <div className={`h-2 bg-gradient-to-r ${project.accent}`} />
+
+              <div className="p-8">
+                <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${project.iconTint}`}>
+                      <Icon size={28} />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                        {project.title}
-                      </h3>
-                      <p className="text-gray-600 mb-3">
-                        {project.description}
-                      </p>
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}>
-                        {getStatusLabel(project.status)}
-                      </span>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{project.title}</h3>
+                      <p className="text-gray-500 dark:text-gray-400">{project.description}</p>
                     </div>
                   </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${
+                      project.status === 'Shipped'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                        : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
+                    }`}
+                  >
+                    {project.status}
+                  </span>
                 </div>
 
-                <div className="mb-4">
-                  <p className="text-gray-700 leading-relaxed">
-                    {project.longDescription}
-                  </p>
-                </div>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+                  {project.longDescription}
+                </p>
 
-                <div className="mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-4 border-t border-gray-200">
-                  {project.demoUrl && (
-                    <a
-                      href={project.demoUrl}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium"
                     >
-                      <ExternalLink size={18} />
-                      View Demo
-                    </a>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex gap-3 flex-wrap">
+                  {project.demoUrl && (
+                    <Link
+                      to={project.demoUrl}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900
+                                 rounded-lg hover:opacity-85 transition-opacity font-medium"
+                    >
+                      {project.demoLabel || 'View Demo'} <ArrowRight size={16} />
+                    </Link>
                   )}
                   {project.githubUrl && (
                     <a
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium"
+                      className="flex items-center gap-2 px-5 py-2.5 border border-gray-300 dark:border-gray-600
+                                 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700
+                                 transition-colors font-medium"
                     >
-                      <Github size={18} />
-                      View Code
+                      <Github size={16} /> View Code
                     </a>
-                  )}
-                  {project.status === 'planned' && (
-                    <span className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-medium">
-                      Coming Soon
-                    </span>
                   )}
                 </div>
               </div>
@@ -180,57 +150,16 @@ export default function Projects() {
         })}
       </div>
 
-      {/* Articles Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Technical Articles</h2>
-        <p className="text-gray-600 mb-6">
-          Coming soon: In-depth articles about operations management, data analytics, and software development.
-        </p>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">
-              Data-Driven Operations Management
-            </h3>
-            <p className="text-gray-600 text-sm mb-3">
-              How I used analytics to improve efficiency and reduce costs in retail food service
-            </p>
-            <span className="text-xs text-gray-500">Draft in progress</span>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">
-              Building Real-Time Dashboards with React
-            </h3>
-            <p className="text-gray-600 text-sm mb-3">
-              A technical guide to creating interactive data visualizations for business intelligence
-            </p>
-            <span className="text-xs text-gray-500">Planned</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Call to Action */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-sm p-8 text-center text-white">
-        <h2 className="text-2xl font-bold mb-3">Interested in Collaboration?</h2>
-        <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-          I'm always excited to work on new projects, especially those involving data analytics,
-          automation, or operational optimization.
-        </p>
-        <div className="flex justify-center gap-4">
-          <a
-            href="mailto:your.email@example.com"
-            className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-          >
-            Get in Touch
-          </a>
-          <a
-            href="https://linkedin.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-400 transition-colors"
-          >
-            Connect on LinkedIn
-          </a>
-        </div>
+      <div className="text-center py-6">
+        <p className="text-gray-500 dark:text-gray-400 mb-4">More on the way. Watch this space.</p>
+        <a
+          href="https://github.com/Ragnr99"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline font-medium"
+        >
+          <Github size={18} /> github.com/Ragnr99
+        </a>
       </div>
     </div>
   )

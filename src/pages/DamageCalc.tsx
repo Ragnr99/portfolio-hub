@@ -34,14 +34,39 @@ const STAT_LABELS: Record<string, string> = { hp: 'HP', atk: 'Atk', def: 'Def', 
 const BOOST_KEYS = ['atk', 'def', 'spa', 'spd'] as const
 
 // one-click fundamental builds: the spreads 90% of real sets are built from
-const PRESETS: { label: string; nature: string; evs: Record<string, number> }[] = [
-  { label: 'Phys. Sweeper', nature: 'Jolly', evs: { hp: 0, atk: 252, def: 0, spa: 0, spd: 4, spe: 252 } },
-  { label: 'Spec. Sweeper', nature: 'Timid', evs: { hp: 0, atk: 0, def: 0, spa: 252, spd: 4, spe: 252 } },
-  { label: 'Bulky Phys.', nature: 'Adamant', evs: { hp: 252, atk: 252, def: 0, spa: 0, spd: 4, spe: 0 } },
-  { label: 'Bulky Spec.', nature: 'Modest', evs: { hp: 252, atk: 0, def: 0, spa: 252, spd: 4, spe: 0 } },
-  { label: 'Phys. Wall', nature: 'Impish', evs: { hp: 252, atk: 0, def: 252, spa: 0, spd: 4, spe: 0 } },
-  { label: 'Spec. Wall', nature: 'Calm', evs: { hp: 252, atk: 0, def: 4, spa: 0, spd: 252, spe: 0 } },
+const PRESETS: { label: string; nature: string; cat: 'physical' | 'special' | 'auto'; evs: Record<string, number> }[] = [
+  { label: 'Phys. Sweeper', nature: 'Jolly', cat: 'physical', evs: { hp: 0, atk: 252, def: 0, spa: 0, spd: 4, spe: 252 } },
+  { label: 'Spec. Sweeper', nature: 'Timid', cat: 'special', evs: { hp: 0, atk: 0, def: 0, spa: 252, spd: 4, spe: 252 } },
+  { label: 'Bulky Phys.', nature: 'Adamant', cat: 'physical', evs: { hp: 252, atk: 252, def: 0, spa: 0, spd: 4, spe: 0 } },
+  { label: 'Bulky Spec.', nature: 'Modest', cat: 'special', evs: { hp: 252, atk: 0, def: 0, spa: 252, spd: 4, spe: 0 } },
+  { label: 'Phys. Wall', nature: 'Impish', cat: 'auto', evs: { hp: 252, atk: 0, def: 252, spa: 0, spd: 4, spe: 0 } },
+  { label: 'Spec. Wall', nature: 'Calm', cat: 'auto', evs: { hp: 252, atk: 0, def: 4, spa: 0, spd: 252, spe: 0 } },
 ]
+
+interface DexEntry {
+  sprite: string
+  types: string[]
+  stats: { attack: number; spAttack: number }
+  moves: { name: string; type: string; category: string; power: number | null }[]
+}
+
+// pick 4 moves fitting the preset: right category first, STAB before power
+function pickMoves(entry: DexEntry | undefined, cat: 'physical' | 'special' | 'auto'): string[] | null {
+  if (!entry || !entry.moves?.length) return null
+  const want = cat === 'auto'
+    ? (entry.stats.attack >= entry.stats.spAttack ? 'physical' : 'special')
+    : cat
+  const stab = (m: { type: string }) => (entry.types.includes(m.type) ? 1 : 0)
+  const damaging = entry.moves.filter((m) => m.power)
+  const ranked = [...damaging].sort((a, b) => stab(b) - stab(a) || (b.power || 0) - (a.power || 0))
+  const chosen = [...ranked.filter((m) => m.category === want),
+                  ...ranked.filter((m) => m.category !== want)].slice(0, 4)
+  if (!chosen.length) return null
+  // canonical display names from the calc's own dex ("solar-beam" -> "Solar Beam")
+  const names = chosen.map((m) => gen.moves.get(toID(m.name))?.name || m.name)
+  while (names.length < 4) names.push('')
+  return names
+}
 
 interface SideState {
   species: string
@@ -101,15 +126,18 @@ export default function DamageCalc() {
   const [gameType, setGameType] = useState<'Singles' | 'Doubles'>('Singles')
   const [weather, setWeather] = useState('')
   const [terrain, setTerrain] = useState('')
-  const [sprites, setSprites] = useState<Record<string, string>>({})
+  const [sprites, setSprites] = useState<Record<string, DexEntry>>({})
   const [focused, setFocused] = useState<{ dir: 'left' | 'right'; i: number } | null>(null)
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}pokemon-data.json`)
       .then((r) => r.json())
       .then((data) => {
-        const map: Record<string, string> = {}
-        data.forEach((p: any) => { map[p.name] = p.sprite })
+        const map: Record<string, DexEntry> = {}
+        data.forEach((p: any) => {
+          map[p.name] = { sprite: p.sprite, types: p.types,
+            stats: { attack: p.stats.attack, spAttack: p.stats.spAttack }, moves: p.moves || [] }
+        })
         setSprites(map)
       })
       .catch(() => { /* sprites are decoration */ })
@@ -261,7 +289,7 @@ function PokemonPanel({ side, setSide, title, sprites, rows, onFocusRow, focused
   side: SideState
   setSide: (s: SideState) => void
   title: string
-  sprites: Record<string, string>
+  sprites: Record<string, DexEntry>
   rows: CalcRow[]
   onFocusRow: (i: number) => void
   focusedIndex: number
@@ -269,7 +297,8 @@ function PokemonPanel({ side, setSide, title, sprites, rows, onFocusRow, focused
   const [showIvs, setShowIvs] = useState(false)
   const set = (patch: Partial<SideState>) => setSide({ ...side, ...patch })
   const evTotal = Object.values(side.evs).reduce((a, b) => a + b, 0)
-  const sprite = sprites[normalizeName(side.species)]
+  const dexEntry = sprites[normalizeName(side.species)]
+  const sprite = dexEntry?.sprite
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
@@ -281,7 +310,10 @@ function PokemonPanel({ side, setSide, title, sprites, rows, onFocusRow, focused
       <div className="grid grid-cols-2 gap-3">
         <label className="block col-span-2 sm:col-span-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Pokemon</span>
-          <input list="dl-species" value={side.species} onChange={(e) => set({ species: e.target.value, ability: '' })} className={inputCls} />
+          <select value={side.species} onChange={(e) => set({ species: e.target.value, ability: '' })} className={selectCls}>
+            {!SPECIES.includes(side.species) && <option value={side.species}>{side.species}</option>}
+            {SPECIES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
         </label>
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Level</span>
@@ -321,7 +353,10 @@ function PokemonPanel({ side, setSide, title, sprites, rows, onFocusRow, focused
         {PRESETS.map((p) => (
           <button
             key={p.label}
-            onClick={() => set({ nature: p.nature, evs: { ...p.evs } })}
+            onClick={() => {
+              const moves = pickMoves(sprites[normalizeName(side.species)], p.cat)
+              set({ nature: p.nature, evs: { ...p.evs }, ...(moves ? { moves } : {}) })
+            }}
             title={`${p.nature} · ${Object.entries(p.evs).filter(([, v]) => v > 0).map(([k, v]) => `${v} ${STAT_LABELS[k]}`).join(' / ')}`}
             className="px-2.5 py-1 text-[11px] font-medium rounded-full border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
           >

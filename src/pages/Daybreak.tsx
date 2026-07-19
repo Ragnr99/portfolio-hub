@@ -40,16 +40,27 @@ export default function Daybreak() {
           no tracking — everything runs on-device.
         </p>
         <p className="text-gray-500 dark:text-gray-400">
-          The live demo runs on my machine, so this page is just the pitch. The code is real though:
+          Windows only, free, no install — unzip and run. If Windows shows a SmartScreen
+          warning, click "More info" then "Run anyway" (it's unsigned, not unsafe).
         </p>
-        <a
-          href="https://github.com/Ragnr99/daily-news"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-6 py-3 bg-gray-800 dark:bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-900 dark:hover:bg-gray-600 transition-colors"
-        >
-          View Daybreak on GitHub
-        </a>
+        <div className="flex justify-center gap-4">
+          <a
+            href="https://github.com/Ragnr99/daily-news/releases/latest"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-6 py-3 bg-orange-600 dark:bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors"
+          >
+            Download Daybreak
+          </a>
+          <a
+            href="https://github.com/Ragnr99/daily-news"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-6 py-3 bg-gray-800 dark:bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-900 dark:hover:bg-gray-600 transition-colors"
+          >
+            View the code
+          </a>
+        </div>
       </div>
     )
   }

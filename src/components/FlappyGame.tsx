@@ -8,8 +8,9 @@ const W = 480
 const H = 560
 const BIRD_X = 120
 const BIRD_R = 14
-const GRAVITY = 0.45
-const FLAP = -7.6
+const GRAVITY = 0.34
+const FLAP = -6.9
+const MAX_FALL = 8.5
 const PIPE_W = 66
 const GAP_START = 170
 const GAP_MIN = 120
@@ -71,7 +72,7 @@ export default function FlappyGame() {
   const speedFor = () => 2.6 + Math.min(2, scoreRef.current * 0.05)
 
   const step = () => {
-    birdVRef.current += GRAVITY
+    birdVRef.current = Math.min(MAX_FALL, birdVRef.current + GRAVITY)
     birdYRef.current += birdVRef.current
 
     const speed = speedFor()

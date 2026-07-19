@@ -13,7 +13,7 @@ interface Project {
   demoUrl?: string        // in-app route
   demoLabel?: string
   githubUrl?: string
-  status: 'Shipped' | 'In Progress'
+  status: 'Beta' | 'In Development'
 }
 
 const PROJECTS: Project[] = [
@@ -30,7 +30,7 @@ const PROJECTS: Project[] = [
     demoUrl: '/daybreak',
     demoLabel: 'Try Daybreak',
     githubUrl: 'https://github.com/Ragnr99/daily-news',
-    status: 'Shipped',
+    status: 'Beta',
   },
   {
     id: 'arcade',
@@ -45,7 +45,7 @@ const PROJECTS: Project[] = [
     demoUrl: '/games',
     demoLabel: 'Enter the Arcade',
     githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
-    status: 'Shipped',
+    status: 'Beta',
   },
   {
     id: 'damage-calc',
@@ -60,7 +60,7 @@ const PROJECTS: Project[] = [
     demoUrl: '/calc',
     demoLabel: 'Run a calc',
     githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
-    status: 'Shipped',
+    status: 'Beta',
   },
   {
     id: 'portfolio-hub',
@@ -73,7 +73,7 @@ const PROJECTS: Project[] = [
     accent: 'from-blue-500 via-sky-400 to-indigo-500',
     iconTint: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300',
     githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
-    status: 'In Progress',
+    status: 'In Development',
   },
 ]
 
@@ -83,7 +83,7 @@ export default function Projects() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Projects</h1>
         <p className="text-gray-600 dark:text-gray-300">
-          Things I've actually built and shipped, not a wishlist.
+          Real, working, and in active development. Try everything live.
         </p>
       </div>
 
@@ -112,7 +112,7 @@ export default function Projects() {
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${
-                      project.status === 'Shipped'
+                      project.status === 'Beta'
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
                         : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
                     }`}

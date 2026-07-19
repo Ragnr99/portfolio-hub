@@ -56,6 +56,9 @@ export default function AsteroidsGame() {
   const bulletsRef = useRef<Bullet[]>([])
   const keysRef = useRef<{ [key: string]: boolean }>({})
   const animationFrameRef = useRef<number>(0)
+  const waveSpawningRef = useRef(false)   // guards the wave-clear check (it runs every frame)
+  const invulnUntilRef = useRef(0)        // respawn invincibility deadline
+  const lastShotRef = useRef(0)           // fire-rate limiter
 
   useEffect(() => {
     if (gameState === 'gameOver') {
@@ -108,6 +111,8 @@ export default function AsteroidsGame() {
     }
     bulletsRef.current = []
     asteroidsRef.current = []
+    waveSpawningRef.current = false
+    invulnUntilRef.current = performance.now() + 1500
 
     const numAsteroids = 3 + level
     for (let i = 0; i < numAsteroids; i++) {
@@ -153,6 +158,7 @@ export default function AsteroidsGame() {
 
     if (keys[controls.left]) ship.angle -= 0.1
     if (keys[controls.right]) ship.angle += 0.1
+    if (controls.action && keys[controls.action]) shoot()   // hold to fire, rate-limited in shoot()
 
     ship.thrust = keys[controls.up] || false
 
@@ -192,7 +198,8 @@ export default function AsteroidsGame() {
           const asteroid = asteroids[i]
           asteroids.splice(i, 1)
 
-          setScore((s) => s + Math.floor(100 / asteroid.radius))
+          // classic size-tier scoring: big 20, medium 50, small 100
+          setScore((s) => s + (asteroid.radius >= 40 ? 20 : asteroid.radius >= 20 ? 50 : 100))
 
           if (asteroid.radius > 15) {
             asteroids.push(createAsteroid(asteroid.pos.x, asteroid.pos.y, asteroid.radius / 2))
@@ -202,7 +209,8 @@ export default function AsteroidsGame() {
         }
       }
 
-      if (asteroids[i] && checkCollision(ship, asteroids[i])) {
+      if (asteroids[i] && performance.now() > invulnUntilRef.current
+          && checkCollision(ship, asteroids[i])) {
         setLives((l) => {
           const newLives = l - 1
           if (newLives <= 0) {
@@ -210,6 +218,7 @@ export default function AsteroidsGame() {
           } else {
             ship.pos = { x: CANVAS_WIDTH / 2, y: CANVAS_HEIGHT / 2 }
             ship.vel = { x: 0, y: 0 }
+            invulnUntilRef.current = performance.now() + 2000  // 2s of respawn grace
           }
           return newLives
         })
@@ -217,14 +226,21 @@ export default function AsteroidsGame() {
       }
     }
 
-    if (asteroids.length === 0) {
-      setLevel((l) => l + 1)
-      setTimeout(() => {
-        const numAsteroids = 3 + level
-        for (let i = 0; i < numAsteroids; i++) {
-          asteroidsRef.current.push(createAsteroid())
-        }
-      }, 1000)
+    // one wave per clear - this check runs every frame, so it must latch
+    if (asteroids.length === 0 && !waveSpawningRef.current) {
+      waveSpawningRef.current = true
+      setLevel((l) => {
+        const next = l + 1
+        setTimeout(() => {
+          const numAsteroids = 3 + next
+          for (let i = 0; i < numAsteroids; i++) {
+            asteroidsRef.current.push(createAsteroid())
+          }
+          invulnUntilRef.current = performance.now() + 1500
+          waveSpawningRef.current = false
+        }, 1000)
+        return next
+      })
     }
 
     draw()
@@ -244,7 +260,10 @@ export default function AsteroidsGame() {
     const asteroids = asteroidsRef.current
     const bullets = bulletsRef.current
 
+    // blink while invulnerable after a respawn
+    const invuln = performance.now() < invulnUntilRef.current
     ctx.save()
+    if (invuln && Math.floor(performance.now() / 120) % 2 === 0) ctx.globalAlpha = 0.25
     ctx.translate(ship.pos.x, ship.pos.y)
     ctx.rotate(ship.angle)
     ctx.strokeStyle = '#60a5fa'
@@ -292,14 +311,21 @@ export default function AsteroidsGame() {
   }
 
   const shoot = () => {
+    // rate-limited (5/sec), max 8 live bullets, fired from the nose
+    const now = performance.now()
+    if (now - lastShotRef.current < 200 || bulletsRef.current.length >= 8) return
+    lastShotRef.current = now
     const ship = shipRef.current
     bulletsRef.current.push({
-      pos: { x: ship.pos.x, y: ship.pos.y },
-      vel: {
-        x: Math.cos(ship.angle) * 7 + ship.vel.x,
-        y: Math.sin(ship.angle) * 7 + ship.vel.y,
+      pos: {
+        x: ship.pos.x + Math.cos(ship.angle) * 14,
+        y: ship.pos.y + Math.sin(ship.angle) * 14,
       },
-      life: 60,
+      vel: {
+        x: Math.cos(ship.angle) * 8 + ship.vel.x,
+        y: Math.sin(ship.angle) * 8 + ship.vel.y,
+      },
+      life: 55,
     })
   }
 
@@ -309,8 +335,7 @@ export default function AsteroidsGame() {
       const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
       keysRef.current[wasdKey] = true
       if (e.key === controls.action && gameState === 'playing') {
-        e.preventDefault()
-        shoot()
+        e.preventDefault()   // firing itself is handled in the game loop (hold to fire)
       }
     }
 

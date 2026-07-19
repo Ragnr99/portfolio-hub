@@ -55,8 +55,9 @@ export default function PacManGame() {
   const CELL_SIZE = 25
   const CANVAS_WIDTH = GRID_SIZE * CELL_SIZE
   const CANVAS_HEIGHT = GRID_SIZE * CELL_SIZE
-  const MOVE_INTERVAL = 180
-  const GHOST_MOVE_INTERVAL = 220
+  const MOVE_INTERVAL = 150
+  const GHOST_MOVE_INTERVAL = 185
+  const ghostLastMoveRef = useRef<number>(0)
 
   // Simple maze layout (1 = wall, 0 = path)
   const maze = [
@@ -116,6 +117,7 @@ export default function PacManGame() {
     setScore(0)
     setGameState('playing')
     lastMoveTimeRef.current = performance.now()
+    ghostLastMoveRef.current = performance.now()
   }
 
   const resetGame = () => {
@@ -125,6 +127,34 @@ export default function PacManGame() {
 
   const isValidMove = (x: number, y: number): boolean => {
     return x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE && maze[y][x] === 0
+  }
+
+  // Runs after pacman moves AND after ghosts move, so crossing paths in
+  // either half-step registers instead of passing through
+  const dyingRef = useRef(false)   // one death per contact, even with stacked ghosts
+
+  const checkGhostCollisions = () => {
+    const pacman = pacmanRef.current
+    ghostsRef.current.forEach((ghost) => {
+      if (ghost.pos.x === pacman.x && ghost.pos.y === pacman.y) {
+        if (powerModeRef.current > 0) {
+          setScore(s => s + 200)
+          ghost.pos = { x: 9, y: 9 }
+        } else if (!dyingRef.current) {
+          dyingRef.current = true
+          pacman.x = 1
+          pacman.y = 1
+          directionRef.current = { x: 1, y: 0 }
+          nextDirectionRef.current = { x: 1, y: 0 }
+          setLives(l => {
+            const newLives = Math.max(0, l - 1)
+            if (newLives <= 0) setGameState('gameOver')
+            return newLives
+          })
+          setTimeout(() => { dyingRef.current = false }, 400)
+        }
+      }
+    })
   }
 
   const gameLoop = (currentTime: number) => {
@@ -170,15 +200,24 @@ export default function PacManGame() {
       if (powerIndex !== -1) {
         powerPelletsRef.current.splice(powerIndex, 1)
         setScore(s => s + 50)
-        powerModeRef.current = 100
+        powerModeRef.current = 45   // ~7 seconds of power at the pacman tick rate
       }
 
       if (powerModeRef.current > 0) {
         powerModeRef.current--
       }
 
-      // Move ghosts
-      if (timeSinceLastMove >= GHOST_MOVE_INTERVAL) {
+      // Check ghost collision after pacman's move (before ghosts move)
+      checkGhostCollisions()
+    }
+
+    // Ghosts run on their own clock - the old check lived inside pacman's
+    // move block and compared against pacman's timer, so it almost never
+    // fired and the ghosts just stood there
+    if (currentTime - ghostLastMoveRef.current >= GHOST_MOVE_INTERVAL) {
+      ghostLastMoveRef.current = currentTime
+      {
+        const pacman = pacmanRef.current
         ghostsRef.current.forEach(ghost => {
           const possibleDirs = [
             { x: 1, y: 0 },
@@ -188,10 +227,15 @@ export default function PacManGame() {
           ]
 
           // Filter valid directions
-          const validDirs = possibleDirs.filter(dir =>
+          let validDirs = possibleDirs.filter(dir =>
             isValidMove(ghost.pos.x + dir.x, ghost.pos.y + dir.y) &&
             !(dir.x === -ghost.dir.x && dir.y === -ghost.dir.y) // Don't reverse
           )
+          if (validDirs.length === 0) {
+            // dead end: reversing is the only way out
+            validDirs = possibleDirs.filter(dir =>
+              isValidMove(ghost.pos.x + dir.x, ghost.pos.y + dir.y))
+          }
 
           if (validDirs.length > 0) {
             // Simple AI: move towards or away from Pac-Man
@@ -219,28 +263,7 @@ export default function PacManGame() {
         })
       }
 
-      // Check ghost collision
-      ghostsRef.current.forEach((ghost) => {
-        if (ghost.pos.x === pacman.x && ghost.pos.y === pacman.y) {
-          if (powerModeRef.current > 0) {
-            // Eat ghost
-            setScore(s => s + 200)
-            ghost.pos = { x: 9, y: 9 }
-          } else {
-            // Lose life
-            setLives(l => {
-              const newLives = l - 1
-              if (newLives <= 0) {
-                setGameState('gameOver')
-              } else {
-                pacman.x = 1
-                pacman.y = 1
-              }
-              return newLives
-            })
-          }
-        }
-      })
+      checkGhostCollisions()
 
       // Check win condition
       const hasAnyPellets = pelletsRef.current.some(row => row.some(cell => cell))

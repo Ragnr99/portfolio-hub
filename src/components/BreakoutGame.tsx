@@ -19,6 +19,24 @@ const ROW_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#c08
 
 interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string }
 
+type PowerType = 'grow' | 'slow' | 'life' | 'points'
+interface PowerDrop { x: number; y: number; type: PowerType }
+const POWER_STYLES: Record<PowerType, { label: string; color: string }> = {
+  grow: { label: 'G', color: '#4ade80' },
+  slow: { label: 'S', color: '#22d3ee' },
+  life: { label: '+', color: '#f87171' },
+  points: { label: '$', color: '#facc15' },
+}
+
+// stage layouts, cycling by level: 1 = brick, 0 = gap
+const STAGES: ((r: number, c: number) => boolean)[] = [
+  () => true,                                                        // full wall
+  (r, c) => (r + c) % 2 === 0,                                       // checkerboard
+  (r, c) => Math.abs(c - (BRICK_COLS - 1) / 2) <= r + 1,             // pyramid
+  (_r, c) => c % 3 !== 2,                                            // columns
+  (r, c) => r === 0 || r === BRICK_ROWS - 1 || c === 0 || c === BRICK_COLS - 1 || (r + c) % 2 === 0, // frame + weave
+]
+
 export default function BreakoutGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [gameState, setGameState] = useState<'playing' | 'paused' | 'gameOver' | 'won'>('paused')
@@ -34,18 +52,23 @@ export default function BreakoutGame() {
   const particlesRef = useRef<Particle[]>([])
   const keysRef = useRef<Record<string, boolean>>({})
   const rafRef = useRef(0)
+  const powersRef = useRef<PowerDrop[]>([])
+  const paddleWRef = useRef(PADDLE_W)
+  const growUntilRef = useRef(0)
   const scoreRef = useRef(0)
   const livesRef = useRef(3)
   const levelRef = useRef(1)
 
   const brickW = (W - BRICK_GAP * (BRICK_COLS + 1)) / BRICK_COLS
 
-  const resetBricks = () => {
-    bricksRef.current = Array.from({ length: BRICK_ROWS }, () => Array(BRICK_COLS).fill(true))
+  const resetBricks = (level: number) => {
+    const pattern = STAGES[(level - 1) % STAGES.length]
+    bricksRef.current = Array.from({ length: BRICK_ROWS }, (_, r) =>
+      Array.from({ length: BRICK_COLS }, (_, c) => pattern(r, c)))
   }
 
   const resetBall = () => {
-    ballRef.current = { x: paddleXRef.current + PADDLE_W / 2, y: H - 60, vx: 0, vy: 0, stuck: true }
+    ballRef.current = { x: paddleXRef.current + paddleWRef.current / 2, y: H - 60, vx: 0, vy: 0, stuck: true }
   }
 
   const launchBall = () => {
@@ -61,6 +84,9 @@ export default function BreakoutGame() {
   const initGame = (fromLevel = 1) => {
     levelRef.current = fromLevel
     setLevel(fromLevel)
+    powersRef.current = []
+    paddleWRef.current = PADDLE_W
+    growUntilRef.current = 0
     if (fromLevel === 1) {
       scoreRef.current = 0
       livesRef.current = 3
@@ -68,7 +94,7 @@ export default function BreakoutGame() {
       setLives(3)
       setNewRecord(false)
     }
-    resetBricks()
+    resetBricks(fromLevel)
     paddleXRef.current = W / 2 - PADDLE_W / 2
     resetBall()
     particlesRef.current = []
@@ -90,13 +116,34 @@ export default function BreakoutGame() {
   }
 
   const step = () => {
+    // expired grow effect shrinks the paddle back
+    if (growUntilRef.current && performance.now() > growUntilRef.current) {
+      paddleWRef.current = PADDLE_W
+      growUntilRef.current = 0
+    }
+    const pw = paddleWRef.current
+
     // paddle: keyboard
     if (keysRef.current['ArrowLeft']) paddleXRef.current = Math.max(0, paddleXRef.current - 8)
-    if (keysRef.current['ArrowRight']) paddleXRef.current = Math.min(W - PADDLE_W, paddleXRef.current + 8)
+    if (keysRef.current['ArrowRight']) paddleXRef.current = Math.min(W - pw, paddleXRef.current + 8)
+
+    // falling power-ups: catch with the paddle
+    powersRef.current = powersRef.current.filter((p) => {
+      p.y += 2.3
+      const caught = p.y > H - 44 && p.y < H - 20 && p.x > paddleXRef.current - 10 && p.x < paddleXRef.current + pw + 10
+      if (caught) {
+        if (p.type === 'grow') { paddleWRef.current = 170; growUntilRef.current = performance.now() + 12000 }
+        else if (p.type === 'slow') { const b2 = ballRef.current; b2.vx *= 0.7; b2.vy *= 0.7 }
+        else if (p.type === 'life') { livesRef.current = Math.min(5, livesRef.current + 1); setLives(livesRef.current) }
+        else { scoreRef.current += 50; setScore(scoreRef.current) }
+        return false
+      }
+      return p.y < H + 20
+    })
 
     const b = ballRef.current
     if (b.stuck) {
-      b.x = paddleXRef.current + PADDLE_W / 2
+      b.x = paddleXRef.current + pw / 2
       b.y = H - 60
       return
     }
@@ -110,8 +157,8 @@ export default function BreakoutGame() {
 
     // paddle bounce: hit position controls angle
     const px = paddleXRef.current
-    if (b.vy > 0 && b.y > H - 40 - BALL_R && b.y < H - 40 + PADDLE_H && b.x > px - BALL_R && b.x < px + PADDLE_W + BALL_R) {
-      const rel = (b.x - (px + PADDLE_W / 2)) / (PADDLE_W / 2)   // -1..1
+    if (b.vy > 0 && b.y > H - 40 - BALL_R && b.y < H - 40 + PADDLE_H && b.x > px - BALL_R && b.x < px + pw + BALL_R) {
+      const rel = (b.x - (px + pw / 2)) / (pw / 2)   // -1..1
       const speed = Math.hypot(b.vx, b.vy) * 1.015               // slow ramp
       const angle = -Math.PI / 2 + rel * 1.05
       b.vx = Math.cos(angle) * speed
@@ -131,6 +178,11 @@ export default function BreakoutGame() {
           burst(b.x, b.y, ROW_COLORS[r])
           scoreRef.current += (BRICK_ROWS - r) * 10
           setScore(scoreRef.current)
+          if (Math.random() < 0.16) {
+            const types: PowerType[] = ['grow', 'slow', 'life', 'points']
+            powersRef.current.push({ x: bx + brickW / 2, y: by + BRICK_H,
+              type: types[Math.floor(Math.random() * types.length)] })
+          }
           // bounce off the nearest face
           const overlapX = Math.min(b.x - (bx - BALL_R), (bx + brickW + BALL_R) - b.x)
           const overlapY = Math.min(b.y - (by - BALL_R), (by + BRICK_H + BALL_R) - b.y)
@@ -185,7 +237,7 @@ export default function BreakoutGame() {
 
     // paddle
     ctx.fillStyle = '#e2e8f0'
-    ctx.fillRect(paddleXRef.current, H - 40, PADDLE_W, PADDLE_H)
+    ctx.fillRect(paddleXRef.current, H - 40, paddleWRef.current, PADDLE_H)
 
     // ball
     const b = ballRef.current
@@ -193,6 +245,20 @@ export default function BreakoutGame() {
     ctx.beginPath()
     ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2)
     ctx.fill()
+
+    // falling power-ups
+    powersRef.current.forEach((p) => {
+      const s = POWER_STYLES[p.type]
+      ctx.fillStyle = s.color
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, 11, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.fillStyle = '#0f172a'
+      ctx.font = 'bold 13px monospace'
+      ctx.textAlign = 'center'
+      ctx.fillText(s.label, p.x, p.y + 4.5)
+      ctx.textAlign = 'left'
+    })
 
     // particles
     particlesRef.current.forEach((p) => {
@@ -235,7 +301,7 @@ export default function BreakoutGame() {
     const onMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       const x = (e.clientX - rect.left) * (W / rect.width)
-      paddleXRef.current = Math.min(W - PADDLE_W, Math.max(0, x - PADDLE_W / 2))
+      paddleXRef.current = Math.min(W - paddleWRef.current, Math.max(0, x - paddleWRef.current / 2))
     }
     const onClick = () => launchBall()
     canvas.addEventListener('mousemove', onMove)

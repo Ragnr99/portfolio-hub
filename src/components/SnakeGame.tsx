@@ -172,18 +172,19 @@ export default function SnakeGame() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const dir = directionRef.current
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
 
       // Prevent opposite direction
-      if (e.key === controls.up && dir.y === 0) {
+      if (wasdKey === controls.up && dir.y === 0) {
         nextDirectionRef.current = { x: 0, y: -1 }
         e.preventDefault()
-      } else if (e.key === controls.down && dir.y === 0) {
+      } else if (wasdKey === controls.down && dir.y === 0) {
         nextDirectionRef.current = { x: 0, y: 1 }
         e.preventDefault()
-      } else if (e.key === controls.left && dir.x === 0) {
+      } else if (wasdKey === controls.left && dir.x === 0) {
         nextDirectionRef.current = { x: -1, y: 0 }
         e.preventDefault()
-      } else if (e.key === controls.right && dir.x === 0) {
+      } else if (wasdKey === controls.right && dir.x === 0) {
         nextDirectionRef.current = { x: 1, y: 0 }
         e.preventDefault()
       }

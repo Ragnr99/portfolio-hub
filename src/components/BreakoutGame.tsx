@@ -214,10 +214,16 @@ export default function BreakoutGame() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       keysRef.current[e.key] = true
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
+      keysRef.current[wasdKey] = true
       if (e.key === ' ') { launchBall(); e.preventDefault() }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') e.preventDefault()
     }
-    const up = (e: KeyboardEvent) => { keysRef.current[e.key] = false }
+    const up = (e: KeyboardEvent) => {
+      keysRef.current[e.key] = false
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
+      keysRef.current[wasdKey] = false
+    }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up) }

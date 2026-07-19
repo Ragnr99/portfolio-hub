@@ -176,7 +176,7 @@ export default function FlappyGame() {
   useEffect(() => {
     initStars()
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === ' ' || e.key === 'ArrowUp') { flap(); e.preventDefault() }
+      if (e.key === ' ' || e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') { flap(); e.preventDefault() }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

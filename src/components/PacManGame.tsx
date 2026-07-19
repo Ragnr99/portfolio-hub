@@ -406,16 +406,17 @@ export default function PacManGame() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === controls.up) {
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
+      if (wasdKey === controls.up) {
         nextDirectionRef.current = { x: 0, y: -1 }
         e.preventDefault()
-      } else if (e.key === controls.down) {
+      } else if (wasdKey === controls.down) {
         nextDirectionRef.current = { x: 0, y: 1 }
         e.preventDefault()
-      } else if (e.key === controls.left) {
+      } else if (wasdKey === controls.left) {
         nextDirectionRef.current = { x: -1, y: 0 }
         e.preventDefault()
-      } else if (e.key === controls.right) {
+      } else if (wasdKey === controls.right) {
         nextDirectionRef.current = { x: 1, y: 0 }
         e.preventDefault()
       }

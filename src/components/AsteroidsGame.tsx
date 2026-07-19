@@ -306,6 +306,8 @@ export default function AsteroidsGame() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       keysRef.current[e.key] = true
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
+      keysRef.current[wasdKey] = true
       if (e.key === controls.action && gameState === 'playing') {
         e.preventDefault()
         shoot()
@@ -314,6 +316,8 @@ export default function AsteroidsGame() {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       keysRef.current[e.key] = false
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
+      keysRef.current[wasdKey] = false
     }
 
     window.addEventListener('keydown', handleKeyDown)

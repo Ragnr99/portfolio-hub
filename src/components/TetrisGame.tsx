@@ -218,10 +218,11 @@ export default function TetrisGame() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (gameState !== 'playing') return
-      if (e.key === 'ArrowLeft') { tryMove(-1, 0); e.preventDefault() }
-      else if (e.key === 'ArrowRight') { tryMove(1, 0); e.preventDefault() }
-      else if (e.key === 'ArrowUp') { tryRotate(); e.preventDefault() }
-      else if (e.key === 'ArrowDown') {
+      const wasdKey = ({w:'ArrowUp',s:'ArrowDown',a:'ArrowLeft',d:'ArrowRight'} as Record<string,string>)[e.key.toLowerCase()] || e.key
+      if (wasdKey === 'ArrowLeft') { tryMove(-1, 0); e.preventDefault() }
+      else if (wasdKey === 'ArrowRight') { tryMove(1, 0); e.preventDefault() }
+      else if (wasdKey === 'ArrowUp') { tryRotate(); e.preventDefault() }
+      else if (wasdKey === 'ArrowDown') {
         if (tryMove(0, 1)) { scoreRef.current += 1; setScore(scoreRef.current) }
         e.preventDefault()
       } else if (e.key === ' ') { hardDrop(); e.preventDefault() }

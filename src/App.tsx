@@ -6,6 +6,7 @@ import Daybreak from './pages/Daybreak'
 import Projects from './pages/Projects'
 import Games from './pages/Games'
 import Pokedex from './pages/Pokedex'
+import DamageCalc from './pages/DamageCalc'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/games" element={<Games />} />
             <Route path="/pokedex" element={<Pokedex />} />
+            <Route path="/calc" element={<DamageCalc />} />
           </Routes>
         </Layout>
       </Router>

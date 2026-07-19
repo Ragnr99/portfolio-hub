@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Github, Code, Newspaper, Gamepad2 } from 'lucide-react'
+import { ArrowRight, Github, Code, Newspaper, Gamepad2, Swords } from 'lucide-react'
 
 interface Project {
   id: string
@@ -44,6 +44,21 @@ const PROJECTS: Project[] = [
     iconTint: 'bg-fuchsia-100 dark:bg-fuchsia-900/40 text-fuchsia-600 dark:text-fuchsia-300',
     demoUrl: '/games',
     demoLabel: 'Enter the Arcade',
+    githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
+    status: 'Shipped',
+  },
+  {
+    id: 'damage-calc',
+    title: 'Damage Calculator',
+    description: 'A comprehensive Gen 9 Pokémon damage calculator',
+    longDescription:
+      'Full competitive damage calculation: every ability, item, nature, EV spread, stat stage, weather, terrain, screen, Tera type, and crit, for all 1,400+ species and 900+ moves. Mechanics run on the MIT-licensed engine behind the official Showdown calculator, verified byte-identical against reference calcs; the interface is hand-built for this site with instant recalculation as you tweak a set.',
+    tags: ['TypeScript', 'React', '@smogon/calc', 'Competitive Pokémon'],
+    icon: Swords,
+    accent: 'from-emerald-500 via-teal-400 to-cyan-500',
+    iconTint: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300',
+    demoUrl: '/calc',
+    demoLabel: 'Run a calc',
     githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
     status: 'Shipped',
   },

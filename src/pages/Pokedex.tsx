@@ -27,6 +27,7 @@ interface Pokemon extends PokemonBasic {
   evolutions: EvolutionChain[]
   moves: MoveLearnset
   weaknesses: Record<string, number>
+  rawMoves?: any[]
 }
 
 interface MoveLearnset {
@@ -72,6 +73,9 @@ interface PokemonListItem {
 }
 
 
+// module-level: move details shared across every pokemon and every visit
+const moveDetailCache = new Map<string, any>()
+
 const TYPE_CHART: Record<string, Record<string, number>> = {
   normal: { rock: 0.5, ghost: 0, steel: 0.5 },
   fire: { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
@@ -102,6 +106,7 @@ export default function Pokedex() {
   const [selectedRegion, setSelectedRegion] = useState<string>('national')
   const [loading, setLoading] = useState(true)
   const [detailsLoading, setDetailsLoading] = useState(false)
+  const [movesLoading, setMovesLoading] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     stats: true,
     moves: false,
@@ -325,7 +330,8 @@ export default function Pokedex() {
     const evolutionData = await evolutionResponse.json()
     const evolutions = await parseEvolutionChain(evolutionData.chain)
 
-    const moves = await fetchMoves(pokemonData.moves, pokemonData.id)
+    // moves load in the background after the panel opens (see handlePokemonClick)
+    const moves: MoveLearnset = { levelUp: [], tm: [], egg: [], tutor: [] }
 
     const genderRate = speciesData.gender_rate
     let genderRatio = null
@@ -361,6 +367,7 @@ export default function Pokedex() {
       evolutions,
       moves,
       weaknesses,
+      rawMoves: pokemonData.moves,
     }
   }
 
@@ -370,8 +377,9 @@ export default function Pokedex() {
 
     const addEvolution = async (evo: any) => {
       const id = parseInt(evo.species.url.split('/').slice(-2, -1)[0])
-      const spriteResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-      const spriteData = await spriteResponse.json()
+      // sprite URLs are deterministic - no need to fetch each stage's pokemon
+      const sprite = pokemonBasicData.get(id)?.sprite
+        || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
 
       // Determine which generation this Pokemon was introduced
       let minGeneration = 1
@@ -426,7 +434,7 @@ export default function Pokedex() {
         name: evo.species.name,
         id,
         method,
-        sprite: spriteData.sprites.front_default,
+        sprite,
         minGeneration: evoGeneration
       })
     }
@@ -452,6 +460,15 @@ export default function Pokedex() {
   }
 
   const fetchMoves = async (movesList: any[], _pokemonId: number): Promise<MoveLearnset> => {
+    // fetch every unique move's details in parallel, through a cross-pokemon
+    // cache (Tackle is Tackle everywhere) - this used to be sequential and
+    // was the multi-second lag on every click
+    const urls = [...new Set(movesList.map((m: any) => m.move.url))] as string[]
+    await Promise.all(urls.filter((u) => !moveDetailCache.has(u)).map((u) =>
+      fetch(u).then((r) => r.json())
+        .then((d) => { moveDetailCache.set(u, d) })
+        .catch(() => { moveDetailCache.set(u, null) })
+    ))
     const levelUpMap = new Map<string, LevelUpMove>()
     const tmMap = new Map<string, TMMove>()
     const egg: string[] = []
@@ -459,7 +476,8 @@ export default function Pokedex() {
 
     // Process all version groups to collect generation data
     for (const moveEntry of movesList) {
-      const moveData = await fetch(moveEntry.move.url).then(r => r.json())
+      const moveData = moveDetailCache.get(moveEntry.move.url)
+      if (!moveData) continue
 
       for (const versionDetails of moveEntry.version_group_details) {
         const versionGroup = versionDetails.version_group.name
@@ -531,6 +549,16 @@ export default function Pokedex() {
     try {
       const details = await fetchPokemonDetails(pokemon.url, id)
       setSelectedPokemon(details)
+      // the panel is open; moves stream in behind it
+      if (details.rawMoves?.length) {
+        setMovesLoading(true)
+        fetchMoves(details.rawMoves, id)
+          .then((moves) => {
+            setSelectedPokemon((prev) => (prev && prev.id === id ? { ...prev, moves } : prev))
+          })
+          .catch((e) => console.error('Error loading moves:', e))
+          .finally(() => setMovesLoading(false))
+      }
     } catch (error) {
       console.error('Error loading Pokemon details:', error)
     } finally {
@@ -927,7 +955,9 @@ export default function Pokedex() {
                               onClick={() => toggleSection('moves')}
                               className="w-full px-3 py-2 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-t-lg"
                             >
-                              <h4 className="font-semibold text-sm text-gray-900 dark:text-white">Moves</h4>
+                              <h4 className="font-semibold text-sm text-gray-900 dark:text-white">
+                                Moves{movesLoading && <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400 animate-pulse">loading…</span>}
+                              </h4>
                               {expandedSections.moves ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </button>
                             {expandedSections.moves && (

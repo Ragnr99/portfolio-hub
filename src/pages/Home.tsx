@@ -12,7 +12,7 @@ const FEATURED = [
   },
   {
     title: 'The Arcade',
-    description: 'Tetris, Breakout, Flappy, and three more classics, hand-built on raw canvas with zero libraries.',
+    description: 'Tetris, Breakout, Flappy, and three more classics on raw HTML5 canvas, with real game loops and local high scores.',
     icon: Gamepad2,
     path: '/games',
     accent: 'from-fuchsia-500 via-purple-500 to-cyan-400',
@@ -120,13 +120,13 @@ export default function Home() {
       {/* Skills */}
       <section className="max-w-6xl mx-auto w-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 md:p-10">
         <h2 className="font-display text-2xl font-bold text-gray-900 dark:text-white mb-8">
-          What I work with
+          What I bring
         </h2>
         <div className="grid md:grid-cols-2 gap-8">
           <div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500 mb-4">Development</h3>
+            <h3 className="text-sm font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500 mb-4">Execution & Operations</h3>
             <div className="flex flex-wrap gap-2">
-              {['Python', 'TypeScript', 'React', 'Node.js', 'TailwindCSS', 'SQLite', 'Git'].map((skill) => (
+              {['Product Direction', 'Shipping', 'P&L Management', 'Team Leadership', 'Process Optimization', 'Data Analysis'].map((skill) => (
                 <span key={skill} className="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full text-sm font-medium">
                   {skill}
                 </span>
@@ -134,9 +134,9 @@ export default function Home() {
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500 mb-4">Operations & Analytics</h3>
+            <h3 className="text-sm font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500 mb-4">The stack these run on</h3>
             <div className="flex flex-wrap gap-2">
-              {['Data Analysis', 'Excel/Sheets', 'P&L Management', 'Team Leadership', 'Process Optimization'].map((skill) => (
+              {['Python', 'TypeScript', 'React', 'Node.js', 'TailwindCSS', 'SQLite', 'Git'].map((skill) => (
                 <span key={skill} className="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full text-sm font-medium">
                   {skill}
                 </span>
@@ -160,16 +160,16 @@ export default function Home() {
             code: find the friction, build the tool, ship it.
           </p>
           <p>
-            I studied computer science, and I never stopped building. The difference now is
-            that I care less about clever and more about done. Everything on this site is
-            something I actually finished and use, not a tutorial I followed. Daybreak reads
-            my news every morning. The damage calculator matches the real Gen 9 formulas to
-            the byte. The games work.
+            I care less about clever and more about done. Everything on this site is finished
+            and in use, not a half-built demo. Daybreak reads my news every morning. The damage
+            calculator matches the real Gen 9 formulas to the byte. The games work. My bar for a
+            project is simple: does it actually run, and does someone actually use it.
           </p>
           <p>
-            I'm working toward a career in tech, and I'm getting there the way I get
-            anywhere: by out-working the gap and having the receipts to show for it. If you
-            want to see how something here is built, the code is a click away.
+            I'm working toward a career in tech, and I get there the way I get anything done:
+            figure out what needs to exist, pull the pieces together to make it real, and ship
+            it. Everything here is live and the code is public, so you can judge it by the
+            results instead of the pitch.
           </p>
         </div>
       </section>

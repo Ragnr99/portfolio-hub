@@ -35,9 +35,9 @@ const PROJECTS: Project[] = [
   {
     id: 'arcade',
     title: 'The Arcade',
-    description: 'Six retro games hand-built on HTML5 Canvas, zero libraries',
+    description: 'Six retro games on HTML5 Canvas with real game loops',
     longDescription:
-      'Tetris, Breakout, Flappy, Asteroids, Snake, and Pac-Man, every one written from scratch in TypeScript on raw canvas. Real game-loop architecture (fixed-step updates over requestAnimationFrame), particle effects, 7-bag randomizers, wall kicks, and local high scores. No engines, no dependencies.',
+      'Tetris, Breakout, Flappy, Asteroids, Snake, and Pac-Man, all running in TypeScript on raw HTML5 canvas. Real game-loop architecture (fixed-step updates over requestAnimationFrame), particle effects, 7-bag randomizers, wall kicks, and local high scores. No game engine involved.',
     tags: ['TypeScript', 'HTML5 Canvas', 'Game Loops', 'Zero Dependencies'],
     icon: Gamepad2,
     accent: 'from-fuchsia-500 via-purple-500 to-cyan-400',
@@ -52,7 +52,7 @@ const PROJECTS: Project[] = [
     title: 'Damage Calculator',
     description: 'A comprehensive Gen 9 Pokémon damage calculator',
     longDescription:
-      'Full competitive damage calculation: every ability, item, nature, EV spread, stat stage, weather, terrain, screen, Tera type, and crit, for all 1,400+ species and 900+ moves. Mechanics run on the MIT-licensed engine behind the official Showdown calculator, verified byte-identical against reference calcs; the interface is hand-built for this site with instant recalculation as you tweak a set.',
+      'Full competitive damage calculation: every ability, item, nature, EV spread, stat stage, weather, terrain, screen, Tera type, and crit, for all 1,400+ species and 900+ moves. Mechanics run on the MIT-licensed engine behind the official Showdown calculator, verified byte-identical against reference calcs, wrapped in a custom interface with instant recalculation as you tweak a set.',
     tags: ['TypeScript', 'React', '@smogon/calc', 'Competitive Pokémon'],
     icon: Swords,
     accent: 'from-emerald-500 via-teal-400 to-cyan-500',

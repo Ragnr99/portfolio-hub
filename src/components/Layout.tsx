@@ -127,7 +127,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
           <p className="text-center sm:text-left text-xs text-gray-400 dark:text-gray-600 mt-4">
-            © {new Date().getFullYear()} Nicholas Lubold. Hand-built with React, TypeScript, and stubbornness.
+            © {new Date().getFullYear()} Nicholas Lubold · nicholaslubold.com
           </p>
         </div>
       </footer>

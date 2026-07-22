@@ -275,7 +275,7 @@ export default function DamageCalc() {
 
       <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
         Damage mechanics by <a className="underline hover:text-gray-600 dark:hover:text-gray-300" href="https://github.com/smogon/damage-calc" target="_blank" rel="noopener noreferrer">@smogon/calc</a> (MIT),
-        the same engine behind the official Showdown calculator. UI hand-built for this site.
+        the same engine behind the official Showdown calculator. Interface built for this site.
       </p>
     </div>
   )

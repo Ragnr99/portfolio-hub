@@ -116,7 +116,7 @@ export default function Games() {
         </div>
 
         <p className="text-center text-xs text-gray-600">
-          Every game hand-built with HTML5 Canvas + TypeScript. No engines, no libraries. Scores live in your browser.
+          Built on HTML5 Canvas and TypeScript, no game engine. Scores live in your browser.
         </p>
       </div>
     )

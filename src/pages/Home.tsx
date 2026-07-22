@@ -146,7 +146,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Section - intentionally empty for now; content TBD */}
+      {/* About */}
+      <section className="max-w-3xl mx-auto w-full">
+        <div className="h-1.5 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 mb-8" />
+        <h2 className="font-display text-3xl font-bold text-gray-900 dark:text-white mb-6">
+          About me
+        </h2>
+        <div className="space-y-5 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p>
+            I run a kitchen for a living. Managing a Sheetz store means owning a P&amp;L,
+            leading a team through a rush, and fixing the thing that's slowing everyone
+            down before the next wave hits. That's the same instinct that pulls me toward
+            code: find the friction, build the tool, ship it.
+          </p>
+          <p>
+            I studied computer science, and I never stopped building. The difference now is
+            that I care less about clever and more about done. Everything on this site is
+            something I actually finished and use, not a tutorial I followed. Daybreak reads
+            my news every morning. The damage calculator matches the real Gen 9 formulas to
+            the byte. The games work.
+          </p>
+          <p>
+            I'm working toward a career in tech, and I'm getting there the way I get
+            anywhere: by out-working the gap and having the receipts to show for it. If you
+            want to see how something here is built, the code is a click away.
+          </p>
+        </div>
+      </section>
     </div>
   )
 }

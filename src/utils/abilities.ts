@@ -430,7 +430,7 @@ export function getAbilityDefenseModifier(
  * @param pokemonName - The Pokemon's species name
  * @returns A random ability key
  */
-export function getRandomAbilityForPokemon(pokemonName: string): string {
+export function getRandomAbilityForPokemon(_pokemonName: string): string {
   // Placeholder: Return a random common ability
   // In a real implementation, you'd look this up from the Pokemon's data
   const commonAbilities = [

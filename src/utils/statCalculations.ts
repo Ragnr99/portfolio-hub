@@ -14,7 +14,7 @@
  * All of these combine to give the final stat value used in battle.
  */
 
-import { NATURES, MAX_IV, MIN_IV, MAX_EV_PER_STAT } from './pokemonConstants'
+import { NATURES, MAX_IV, MAX_EV_PER_STAT } from './pokemonConstants'
 
 /**
  * Nature Type

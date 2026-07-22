@@ -15,10 +15,10 @@
  * - Persistent team storage (localStorage)
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { Swords, Heart, Shield, Zap, Edit, Trash2, Plus } from 'lucide-react'
-import { TYPE_COLORS, MAX_TEAM_SIZE, MAX_MOVES, DEFAULT_LEVEL, NATURES } from '../utils/pokemonConstants'
-import { calculateDamage, applyStatusEffect, getTypeEffectiveness } from '../utils/battleUtils'
+import { useState, useEffect } from 'react'
+import { Edit, Trash2, Plus } from 'lucide-react'
+import { TYPE_COLORS, MAX_TEAM_SIZE } from '../utils/pokemonConstants'
+import { calculateDamage } from '../utils/battleUtils'
 import { usePokemonData } from '../hooks/usePokemonData'
 import type { Nature, EVSpread, IVSpread } from '../utils/statCalculations'
 import {
@@ -29,16 +29,7 @@ import {
   getDefaultEVSpread,
   getRecommendedNature,
 } from '../utils/statCalculations'
-import type { Ability } from '../utils/abilities'
-import {
-  ABILITIES,
-  getAbility,
-  checkTypeImmunity,
-  checkStatusImmunity,
-  getAbilityDamageModifier,
-  getAbilityDefenseModifier,
-  getRandomAbilityForPokemon,
-} from '../utils/abilities'
+import { getRandomAbilityForPokemon } from '../utils/abilities'
 
 /**
  * BattlePokemon Interface
@@ -301,9 +292,8 @@ export default function Battle() {
       name: data.name,
       sprite: data.sprite,
       types: data.types,
-      hp: stats.hp,
-      maxHp: stats.hp,
       ...stats,
+      maxHp: stats.hp,
       level,
       moves: defaultMoves,
       allMoves,
@@ -376,42 +366,6 @@ export default function Battle() {
     setTeams(teams.map(t => t.id === editingTeam.id ? updatedTeam : t))
   }
 
-  const addToTeam = async (pokemonData: any) => {
-    if (playerTeam.length >= 3) return
-    const battleMon = await createBattlePokemon(pokemonData)
-    setPlayerTeam([...playerTeam, battleMon])
-  }
-
-  const generateRandomTeam = async (): Promise<BattlePokemon[]> => {
-    const team = []
-    for (let i = 0; i < 3; i++) {
-      const random = availablePokemon[Math.floor(Math.random() * availablePokemon.length)]
-      const battleMon = await createBattlePokemon(random)
-      team.push(battleMon)
-    }
-    return team
-  }
-
-  const startBattle = async () => {
-    let team1 = playerTeam
-    let team2: BattlePokemon[] = []
-
-    if (battleMode === 'random') {
-      team1 = await generateRandomTeam()
-      team2 = await generateRandomTeam()
-      setPlayerTeam(team1)
-    } else {
-      if (team1.length === 0) return
-      team2 = await generateRandomTeam()
-    }
-
-    setEnemyTeam(team2)
-    setPlayerActive(team1[0])
-    setEnemyActive(team2[0])
-    setBattleLog(['Battle started!'])
-    setGameState('battle')
-  }
-
   // ==================================================================================
   // STATUS CONDITION FUNCTIONS
   // ==================================================================================
@@ -438,35 +392,6 @@ export default function Battle() {
       updated.sleepTurns = Math.floor(Math.random() * 3) + 1
     }
     return updated
-  }
-
-  /**
-   * Process End-of-Turn Status Damage
-   *
-   * Handles passive damage from burn and poison at the end of each turn.
-   * Burn = 1/16 of max HP
-   * Poison = 1/8 of max HP (double burn damage!)
-   *
-   * @param pokemon - The Pokemon with a status condition
-   * @returns Object with updated Pokemon, damage dealt, and message
-   */
-  const processTurnEndStatus = (pokemon: BattlePokemon): { pokemon: BattlePokemon, damage: number, message: string } => {
-    let damage = 0
-    let message = ''
-
-    if (pokemon.status === 'burn') {
-      damage = Math.floor(pokemon.maxHp / 16)
-      message = `${pokemon.name} is hurt by burn!`
-    } else if (pokemon.status === 'poison') {
-      damage = Math.floor(pokemon.maxHp / 8)
-      message = `${pokemon.name} is hurt by poison!`
-    }
-
-    return {
-      pokemon: { ...pokemon, hp: Math.max(0, pokemon.hp - damage) },
-      damage,
-      message
-    }
   }
 
   // ==================================================================================

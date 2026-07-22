@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import { Paintbrush, Minus, RotateCcw, Save, Droplet, Square, Circle, Eraser, Sparkles, Type, Upload, Blend, Undo, Redo, MousePointer, ExternalLink, Pentagon, Star, Hexagon, Triangle, Move, Copy, Scissors, ZoomIn, ZoomOut, Grid3x3, Pipette, Pencil, Stamp } from 'lucide-react'
+import { Paintbrush, Minus, RotateCcw, Save, Droplet, Square, Circle, Eraser, Sparkles, Type, Upload, Blend, Undo, Redo, MousePointer, ExternalLink, Pentagon, Star, Triangle, Move, Copy, ZoomIn, Pipette, Pencil, Stamp } from 'lucide-react'
 
 type Tool = 'brush' | 'line' | 'bucket' | 'rectangle' | 'circle' | 'eraser' | 'spray' | 'text' | 'select' | 'pencil' | 'ellipse' | 'polygon' | 'star' | 'triangle' | 'move' | 'clone' | 'eyedropper' | 'stamp' | 'zoom'
 
@@ -706,7 +706,6 @@ export default function GeometrySandbox() {
 
     const imageData = ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
     const pixels = imageData.data
-    const rotation = (hueRotation * Math.PI) / 180
 
     // RGB to HSL conversion with hue rotation
     for (let i = 0; i < pixels.length; i += 4) {

@@ -230,7 +230,7 @@ export function calculateDamage(
  */
 export function applyStatusEffect(
   pokemon: { hp: number; status: string; sleepTurns: number },
-  attacker: { attack: number; spAttack: number }
+  _attacker: { attack: number; spAttack: number }
 ): { damage: number; message: string } {
   let damage = 0
   let message = ''

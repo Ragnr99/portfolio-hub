@@ -14,14 +14,10 @@ export default function FileBrowser() {
   const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
-  const [fileContent, setFileContent] = useState<string>('')
 
-  const loadDirectory = async (path: string) => {
+  const loadDirectory = async (_path: string) => {
     setLoading(true)
     setError('')
-    setSelectedFile(null)
-    setFileContent('')
 
     try {
       // This will need a backend API to actually work
@@ -194,8 +190,6 @@ export default function FileBrowser() {
                     onClick={() => {
                       if (file.type === 'directory') {
                         setCurrentPath(file.path)
-                      } else {
-                        setSelectedFile(file.path)
                       }
                     }}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"

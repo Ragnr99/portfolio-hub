@@ -9,6 +9,74 @@ const DAYBREAK_URL = 'http://127.0.0.1:8899/'
 // public visitors get the showcase instead.
 const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname)
 
+const SHOTS = [
+  {
+    file: 'home.webp',
+    title: 'The front page',
+    caption: 'Every story tagged with its source\'s lean, filterable by bias, topic, and source. The bar up top is the spectrum of today\'s coverage.',
+  },
+  {
+    file: 'blindspots.webp',
+    title: 'Blindspots',
+    caption: 'Stories one side of the spectrum is covering and the other is ignoring.',
+  },
+  {
+    file: 'diet.webp',
+    title: 'My Diet',
+    caption: 'A weekly balance score for what you actually read, not just what you scroll past.',
+  },
+  {
+    file: 'hot.webp',
+    title: 'Hot',
+    caption: 'The most-covered stories right now, minus everything you\'ve already read.',
+  },
+  {
+    file: 'markets.webp',
+    title: 'Markets',
+    caption: 'Delayed quotes, sparklines, and movers. No account, no API key.',
+  },
+]
+
+function Gallery() {
+  const base = `${import.meta.env.BASE_URL}daybreak/`
+  const [hero, ...rest] = SHOTS
+  return (
+    <div className="max-w-5xl mx-auto space-y-10 text-left">
+      <figure>
+        <a href={`${base}${hero.file}`} target="_blank" rel="noopener noreferrer">
+          <img
+            src={`${base}${hero.file}`}
+            alt={`Daybreak: ${hero.title}`}
+            className="w-full rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow"
+          />
+        </a>
+        <figcaption className="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+          <span className="font-semibold text-gray-700 dark:text-gray-200">{hero.title}.</span>{' '}
+          {hero.caption}
+        </figcaption>
+      </figure>
+      <div className="grid sm:grid-cols-2 gap-8">
+        {rest.map((s) => (
+          <figure key={s.file}>
+            <a href={`${base}${s.file}`} target="_blank" rel="noopener noreferrer">
+              <img
+                src={`${base}${s.file}`}
+                alt={`Daybreak: ${s.title}`}
+                loading="lazy"
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-shadow"
+              />
+            </a>
+            <figcaption className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-semibold text-gray-700 dark:text-gray-200">{s.title}.</span>{' '}
+              {s.caption}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Daybreak() {
   const [status, setStatus] = useState<'checking' | 'up' | 'down' | 'remote'>(
     IS_LOCAL ? 'checking' : 'remote'
@@ -28,7 +96,8 @@ export default function Daybreak() {
 
   if (status === 'remote') {
     return (
-      <div className="max-w-2xl mx-auto text-center py-24 space-y-6">
+      <div className="py-16 space-y-14">
+        <div className="max-w-2xl mx-auto text-center space-y-6">
         <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center mx-auto">
           <Sunrise size={32} className="text-orange-600 dark:text-orange-400" />
         </div>
@@ -60,6 +129,8 @@ export default function Daybreak() {
             View the code
           </a>
         </div>
+        </div>
+        <Gallery />
       </div>
     )
   }

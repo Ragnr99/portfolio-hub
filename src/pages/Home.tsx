@@ -156,8 +156,9 @@ export default function Home() {
           <p>
             I run a kitchen for a living. Managing a Sheetz store means owning a P&amp;L,
             leading a team through a rush, and fixing the thing that's slowing everyone
-            down before the next wave hits. That's the same instinct that pulls me toward
-            code: find the friction, build the tool, ship it.
+            down before the next wave hits. I've also got a computer science degree from
+            Penn State, so the technical side isn't foreign to me. Put those together and
+            you get one instinct pointed at code: find the friction, build the tool, ship it.
           </p>
           <p>
             I care less about clever and more about done. Everything on this site is finished

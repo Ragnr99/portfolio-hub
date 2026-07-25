@@ -49,8 +49,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-fade-up-slow">
-            Manager at Sheetz with a serious interest in tech. Passionate about data analytics,
-            automation, and building tools that solve real problems.
+            Store manager at Sheetz with a serious interest in tech. I like data, automation,
+            and building small tools that fix real problems.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2 animate-fade-up-slow">
             <Link
@@ -154,23 +154,22 @@ export default function Home() {
         </h2>
         <div className="space-y-5 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
           <p>
-            I run a kitchen for a living. Managing a Sheetz store means owning a P&amp;L,
-            leading a team through a rush, and fixing the thing that's slowing everyone
-            down before the next wave hits. I've also got a computer science degree from
-            Penn State, so the technical side isn't foreign to me. Put those together and
-            you get one instinct pointed at code: find the friction, build the tool, ship it.
+            I manage a Sheetz store. That means owning the P&amp;L, keeping a team steady
+            through the rushes, and fixing whatever's slowing the place down. I also have a
+            computer science degree from Penn State, so the technical side isn't new to me.
+            The two sides feed each other: find the friction, build a small tool, put it to use.
           </p>
           <p>
-            I care less about clever and more about done. Everything on this site is finished
-            and in use, not a half-built demo. Daybreak reads my news every morning. The damage
-            calculator matches the real Gen 9 formulas to the byte. The games work. My bar for a
-            project is simple: does it actually run, and does someone actually use it.
+            What I care about is finishing things. Everything on this site is something I
+            actually use, not a half-built demo. Daybreak reads my news every morning, the
+            damage calculator matches the official Gen 9 formulas, and the games run. I'd
+            rather have a few things that work than a long list that doesn't.
           </p>
           <p>
-            I'm working toward a career in tech, and I get there the way I get anything done:
-            figure out what needs to exist, pull the pieces together to make it real, and ship
-            it. Everything here is live and the code is public, so you can judge it by the
-            results instead of the pitch.
+            I'm interested in tech and I build in my spare time, partly to learn and partly to
+            scratch my own itches. The approach is the same as anything else I take on: work
+            out what needs to exist, put the pieces together, and get it running. It's all live
+            and the code is public, so feel free to look around.
           </p>
         </div>
       </section>

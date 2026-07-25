@@ -82,13 +82,15 @@ const PROJECTS: Project[] = [
     title: 'Palworld Map',
     description: 'An interactive map of the Palworld islands',
     longDescription:
-      'A browser map of the Palworld islands built on Leaflet, with a data-driven layer system for Pal spawns, alphas, bosses, fast travel, chests, eggs, dungeons, ore, and more. Marker clustering keeps dense layers fast, popups carry per-marker detail, and a live readout converts the game\'s raw world coordinates as you move the mouse. The map engine and layers are in place; real marker data is being wired in now.',
-    tags: ['JavaScript', 'Leaflet', 'Vite', 'Interactive Map'],
+      'A browser map of the Palpagos Islands built on Leaflet, with ~13,400 markers across 13 toggleable layers: fast travel, towers, alpha pals, dungeons, effigies, NPCs, chests, eggs, foraging, fishing, ore, and salvage. Pick any Pal to see its day/night wild-spawn point clouds, search markers by name, filter by base game vs DLC, and mark effigies and chests collected. The coordinate transform was reverse-engineered from the game files and verified by plotting the full dataset onto the extracted map texture — every marker lands on the right landmass.',
+    tags: ['JavaScript', 'Leaflet', 'Vite', 'Datamining', 'Interactive Map'],
     icon: Map,
     accent: 'from-green-500 via-lime-400 to-emerald-500',
     iconTint: 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300',
+    demoUrl: '/palworld',
+    demoLabel: 'Open the map',
     githubUrl: 'https://github.com/Ragnr99/palworld-map',
-    status: 'In Development',
+    status: 'Beta',
   },
   {
     id: 'portfolio-hub',

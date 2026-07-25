@@ -7,6 +7,7 @@ import Projects from './pages/Projects'
 import Games from './pages/Games'
 import Pokedex from './pages/Pokedex'
 import DamageCalc from './pages/DamageCalc'
+import Palworld from './pages/Palworld'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/games" element={<Games />} />
             <Route path="/pokedex" element={<Pokedex />} />
             <Route path="/calc" element={<DamageCalc />} />
+            <Route path="/palworld" element={<Palworld />} />
           </Routes>
         </Layout>
       </Router>

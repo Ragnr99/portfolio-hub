@@ -1,9 +1,11 @@
 import { ExternalLink, Github, Map } from 'lucide-react'
 
 // The interactive map is a self-contained Leaflet app, built from the
-// palworld-map repo and hosted here under /public/palworld. It runs live inside
-// this iframe so the demo is real, not a screenshot.
-const MAP_URL = `${import.meta.env.BASE_URL}palworld/index.html`
+// palworld-map repo and hosted here under /public/palworld-app (deliberately a
+// different path from this /palworld route, so a direct load or refresh doesn't
+// hit the static map index instead of this page). It runs live inside the
+// iframe so the demo is real, not a screenshot.
+const MAP_URL = `${import.meta.env.BASE_URL}palworld-app/index.html`
 
 export default function Palworld() {
   return (

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Github, Code, Newspaper, Gamepad2, Swords } from 'lucide-react'
+import { ArrowRight, Github, Code, Newspaper, Gamepad2, Swords, BookOpen, Map } from 'lucide-react'
 
 interface Project {
   id: string
@@ -63,11 +63,39 @@ const PROJECTS: Project[] = [
     status: 'Beta',
   },
   {
+    id: 'pokedex',
+    title: 'Pokédex',
+    description: 'A searchable Pokédex for every species',
+    longDescription:
+      'Every species loaded from a bundled data file for an instant grid, searched and filtered on the client. Open any Pokémon for its stats, typing, and full move list, with move details fetched and cached from PokéAPI on demand so the grid stays fast.',
+    tags: ['React', 'TypeScript', 'PokéAPI', 'Data Caching'],
+    icon: BookOpen,
+    accent: 'from-red-500 via-rose-400 to-orange-500',
+    iconTint: 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300',
+    demoUrl: '/pokedex',
+    demoLabel: 'Open the Pokédex',
+    githubUrl: 'https://github.com/Ragnr99/portfolio-hub',
+    status: 'Beta',
+  },
+  {
+    id: 'palworld-map',
+    title: 'Palworld Map',
+    description: 'An interactive map of the Palworld islands',
+    longDescription:
+      'A browser map of the Palworld islands built on Leaflet, with a data-driven layer system for Pal spawns, alphas, bosses, fast travel, chests, eggs, dungeons, ore, and more. Marker clustering keeps dense layers fast, popups carry per-marker detail, and a live readout converts the game\'s raw world coordinates as you move the mouse. The map engine and layers are in place; real marker data is being wired in now.',
+    tags: ['JavaScript', 'Leaflet', 'Vite', 'Interactive Map'],
+    icon: Map,
+    accent: 'from-green-500 via-lime-400 to-emerald-500',
+    iconTint: 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300',
+    githubUrl: 'https://github.com/Ragnr99/palworld-map',
+    status: 'In Development',
+  },
+  {
     id: 'portfolio-hub',
     title: 'This Website',
     description: 'The site you are on right now',
     longDescription:
-      'Single-page portfolio built with React, TypeScript, Vite, and TailwindCSS. Dark mode, a full Pokédex and battle simulator, the arcade, and a live embed of the Daybreak reader. Deployed to GitHub Pages with a one-command build-and-ship script.',
+      'Single-page portfolio built with React, TypeScript, Vite, and TailwindCSS. Dark mode, the arcade, a full Pokédex, the damage calculator, and a screenshot showcase of the Daybreak reader. Deployed to GitHub Pages on a custom domain with a one-command build-and-ship script.',
     tags: ['React', 'TypeScript', 'Vite', 'TailwindCSS', 'GitHub Pages'],
     icon: Code,
     accent: 'from-blue-500 via-sky-400 to-indigo-500',
@@ -83,7 +111,7 @@ export default function Projects() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Projects</h1>
         <p className="text-gray-600 dark:text-gray-300">
-          Real, working, and in active development. Try everything live.
+          Real projects in active development. Most of them you can try live right here.
         </p>
       </div>
 

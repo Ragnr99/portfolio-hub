@@ -45,7 +45,7 @@ export default function Home() {
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight text-gray-900 dark:text-white animate-fade-up">
             I build things{' '}
             <span className="bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 bg-clip-text text-transparent">
-              that actually ship.
+              that work.
             </span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-fade-up-slow">

@@ -154,22 +154,22 @@ export default function Home() {
         </h2>
         <div className="space-y-5 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
           <p>
-            I manage a Sheetz store. That means owning the P&amp;L, keeping a team steady
-            through the rushes, and fixing whatever's slowing the place down. I also have a
-            computer science degree from Penn State, so the technical side isn't new to me.
-            The two sides feed each other: find the friction, build a small tool, put it to use.
+            I run a Sheetz store. Most of the job is keeping a team and a P&amp;L pointed the
+            right way while the day does its best to come apart, which turns out to be decent
+            training for building things. I've got a CS degree from Penn State too, so the
+            technical side isn't a foreign language to me.
           </p>
           <p>
-            What I care about is finishing things. Everything on this site is something I
-            actually use, not a half-built demo. Daybreak reads my news every morning, the
-            damage calculator matches the official Gen 9 formulas, and the games run. I'd
-            rather have a few things that work than a long list that doesn't.
+            Most of what's on here started as something I wanted for myself. Daybreak came out
+            of wanting a saner way to read the news, and the rest are pretty much the same
+            story. I actually use them, too. Daybreak is still my morning news, the damage
+            calculator is accurate right down to the real Gen 9 numbers, and the arcade games
+            are just fun. None of it is a demo I threw up to look busy.
           </p>
           <p>
-            I'm interested in tech and I build in my spare time, partly to learn and partly to
-            scratch my own itches. The approach is the same as anything else I take on: work
-            out what needs to exist, put the pieces together, and get it running. It's all live
-            and the code is public, so feel free to look around.
+            I build in my free time because I like the part where an idea turns into something
+            I can actually open and use. It's all live, and the code's public if you feel like
+            poking around.
           </p>
         </div>
       </section>

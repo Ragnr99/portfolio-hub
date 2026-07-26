@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Palworld Interactive Map</title>
-    <script type="module" crossorigin src="./assets/index-Bws7ri0m.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DmVQng6z.css">
+    <script type="module" crossorigin src="./assets/index-CI8IUkh9.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DrH_J0QP.css">
   </head>
   <body>
     <div id="app">
@@ -18,32 +18,56 @@
 
         <input id="search" type="search" placeholder="Search markers (name)…" autocomplete="off" />
 
-        <section class="panel">
-          <div class="panel-title">Pal Spawns</div>
-          <input id="pal-search" type="search" list="pal-list" placeholder="Pick a Pal…" autocomplete="off" />
-          <datalist id="pal-list"></datalist>
-          <div class="spawn-opts">
-            <label><input type="checkbox" id="spawn-day" checked /> <span class="dot day"></span> Day</label>
-            <label><input type="checkbox" id="spawn-night" checked /> <span class="dot night"></span> Night</label>
-            <button id="spawn-clear" class="mini">clear</button>
-          </div>
-          <div class="spawn-opts">
-            <label><input type="checkbox" id="spawn-heat" /> Heatmap (density)</label>
-          </div>
-          <div id="spawn-status" class="hint"></div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-title">Region</div>
-          <div class="seg" id="region-seg">
-            <button data-region="all" class="on">All</button>
-            <button data-region="base">Base</button>
-            <button data-region="dlc">DLC</button>
+        <section class="acc open" data-acc>
+          <button class="acc-head" type="button" aria-expanded="true">
+            <span>Pal Spawns</span><span class="chevron"></span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <div class="combo" id="pal-combo">
+                <input id="pal-search" type="text" placeholder="Search a Pal…" autocomplete="off" role="combobox" aria-expanded="false" />
+                <div class="combo-list" id="pal-list" hidden></div>
+              </div>
+              <div class="chips">
+                <button class="chip on" type="button" data-spawn="day"><span class="dot day"></span>Day</button>
+                <button class="chip on" type="button" data-spawn="night"><span class="dot night"></span>Night</button>
+                <button class="chip" type="button" data-spawn="heat">Heatmap</button>
+                <button class="chip ghost" type="button" id="spawn-clear">Clear</button>
+              </div>
+              <div id="spawn-status" class="hint"></div>
+            </div>
           </div>
         </section>
 
-        <div class="panel-title">Layers</div>
-        <div id="layer-controls"></div>
+        <section class="acc open" data-acc>
+          <button class="acc-head" type="button" aria-expanded="true">
+            <span>Region</span><span class="chevron"></span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <div class="seg" id="region-seg">
+                <button data-region="all" class="on" type="button">All</button>
+                <button data-region="base" type="button">Base</button>
+                <button data-region="dlc" type="button">DLC</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="acc open" data-acc>
+          <button class="acc-head" type="button" aria-expanded="true">
+            <span>Layers</span><span class="chevron"></span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <div class="bulk">
+                <button id="layers-all" type="button">Show all</button>
+                <button id="layers-none" type="button">Hide all</button>
+              </div>
+              <div id="layer-controls"></div>
+            </div>
+          </div>
+        </section>
 
         <div id="coord-readout">Hover the map for coords</div>
       </aside>

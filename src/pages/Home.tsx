@@ -49,8 +49,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-fade-up-slow">
-            Store manager at Sheetz with a serious interest in tech. I like data, automation,
-            and building small tools that fix real problems.
+            By day I run a Sheetz store. On my own time I'm usually buried in some project,
+            fixing whatever's been bugging me lately.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2 animate-fade-up-slow">
             <Link

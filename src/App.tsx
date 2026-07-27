@@ -8,6 +8,9 @@ import Games from './pages/Games'
 import Pokedex from './pages/Pokedex'
 import DamageCalc from './pages/DamageCalc'
 import Palworld from './pages/Palworld'
+import PalworldMap from './pages/PalworldMap'
+import Palpedia from './pages/Palpedia'
+import PalBreeder from './pages/PalBreeder'
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
             <Route path="/pokedex" element={<Pokedex />} />
             <Route path="/calc" element={<DamageCalc />} />
             <Route path="/palworld" element={<Palworld />} />
+            <Route path="/palworld/map" element={<PalworldMap />} />
+            <Route path="/palworld/palpedia" element={<Palpedia />} />
+            <Route path="/palworld/breeder" element={<PalBreeder />} />
           </Routes>
         </Layout>
       </Router>

@@ -173,6 +173,14 @@ export function usePalworldData() {
   return { data, loading, error }
 }
 
+/**
+ * Portrait filename for a Pal, under public/pal-images/.
+ * Keyed on the internal name because it survives game patches, unlike dex order.
+ * Must stay identical to slug() in scripts/fetch-pal-images.js.
+ */
+export const palImageSlug = (internal: string) =>
+  internal.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+
 /** Display label for a work-suitability key ("GenerateElectricity" -> "Electricity"). */
 export const WORK_LABELS: Record<string, string> = {
   Kindling: 'Kindling',

@@ -6,7 +6,7 @@ import {
   WORK_LABELS, type Pal,
 } from '../hooks/usePalworldData'
 import {
-  ElementBadge, ElementStripe, StatBar, WorkGrid, RarityBadge, DexNumber,
+  ElementBadge, ElementStripe, StatBar, WorkGrid, RarityBadge, DexNumber, PalPortrait,
 } from '../components/PalBits'
 
 // Palworld's stat model doesn't map onto a Pokedex 1:1, so these are the axes
@@ -132,13 +132,20 @@ export default function Palpedia() {
           >
             <ElementStripe elements={pal.elements} />
             <div className="p-3 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <span className="font-semibold text-sm text-gray-900 dark:text-white leading-tight">{pal.name}</span>
-                <DexNumber pal={pal} />
-              </div>
-              <div className="flex gap-1 flex-wrap">
-                {pal.elements.map(el => <ElementBadge key={el} element={el} compact />)}
-                {pal.nocturnal && <Moon size={12} className="text-indigo-400 mt-0.5" aria-label="Nocturnal" />}
+              <div className="flex items-start gap-2.5">
+                <PalPortrait pal={pal} size={52} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-1">
+                    <span className="font-semibold text-sm text-gray-900 dark:text-white leading-tight truncate">
+                      {pal.name}
+                    </span>
+                    <DexNumber pal={pal} />
+                  </div>
+                  <div className="flex gap-1 flex-wrap mt-1">
+                    {pal.elements.map(el => <ElementBadge key={el} element={el} compact />)}
+                    {pal.nocturnal && <Moon size={12} className="text-indigo-400 mt-0.5" aria-label="Nocturnal" />}
+                  </div>
+                </div>
               </div>
               <div className="flex gap-3 text-[11px] text-gray-500 dark:text-gray-400 tabular-nums">
                 <span>HP {pal.hp}</span>
@@ -225,14 +232,17 @@ function PalDetail({
         <ElementStripe elements={pal.elements} />
         <div className="p-6 space-y-5">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{pal.name}</h2>
-                <DexNumber pal={pal} />
-                <RarityBadge rarity={pal.rarity} />
-              </div>
-              <div className="flex gap-1.5 mt-2 flex-wrap">
-                {pal.elements.map(el => <ElementBadge key={el} element={el} />)}
+            <div className="flex gap-4">
+              <PalPortrait pal={pal} size={88} />
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{pal.name}</h2>
+                  <DexNumber pal={pal} />
+                  <RarityBadge rarity={pal.rarity} />
+                </div>
+                <div className="flex gap-1.5 mt-2 flex-wrap">
+                  {pal.elements.map(el => <ElementBadge key={el} element={el} />)}
+                </div>
               </div>
             </div>
             <button

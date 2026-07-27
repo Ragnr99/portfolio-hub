@@ -1,13 +1,46 @@
-/**
- * Small shared pieces for the Palworld pages.
- *
- * There are no Pal artwork files in this repo on purpose: 288 menu sprites would
- * add well over 10MB to the repo for decoration. Instead a Pal reads as its
- * element colours plus its dex number, which is enough to recognise one at a
- * glance in a grid.
- */
+/** Small shared pieces for the Palworld pages. */
 
-import { ELEMENT_COLORS, WORK_LABELS, type Pal } from '../hooks/usePalworldData'
+import { useState } from 'react'
+import { ELEMENT_COLORS, WORK_LABELS, palImageSlug, type Pal } from '../hooks/usePalworldData'
+
+/**
+ * Pal portrait, falling back to an element-tinted monogram.
+ *
+ * Sources are 128px WebP (~5KB each, 1.6MB for the roster) rather than the
+ * wiki's 512px PNGs, which would have been 19MB. Everything renders at 64px or
+ * under, so 128 still has 2x headroom.
+ */
+export function PalPortrait({ pal, size = 48 }: { pal: Pal; size?: number }) {
+  const [failed, setFailed] = useState(false)
+  const color = ELEMENT_COLORS[pal.elements[0]] ?? '#8b8b8b'
+  const box = { width: size, height: size }
+
+  if (failed) {
+    return (
+      <div
+        style={{ ...box, backgroundColor: `${color}24`, color }}
+        className="shrink-0 rounded-lg flex items-center justify-center font-bold select-none"
+        aria-label={pal.name}
+      >
+        <span style={{ fontSize: size * 0.36 }}>{pal.name.slice(0, 2)}</span>
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={`${import.meta.env.BASE_URL}pal-images/${palImageSlug(pal.internal)}.webp`}
+      alt={pal.name}
+      width={size}
+      height={size}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+      style={{ ...box, backgroundColor: `${color}14` }}
+      className="shrink-0 rounded-lg object-cover"
+    />
+  )
+}
 
 export function ElementBadge({ element, compact = false }: { element: string; compact?: boolean }) {
   const c = ELEMENT_COLORS[element] ?? '#8b8b8b'

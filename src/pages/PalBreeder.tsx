@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Egg, ChevronLeft, Search, ArrowRight, Shuffle, Venus, Mars, Info } from 'lucide-react'
 import { usePalworldData, type Pal, type PalworldData } from '../hooks/usePalworldData'
-import { ElementBadge, ElementStripe, RarityBadge, DexNumber } from '../components/PalBits'
+import { ElementBadge, ElementStripe, RarityBadge, DexNumber, PalPortrait } from '../components/PalBits'
 
 type Mode = 'pair' | 'target'
 
@@ -249,17 +249,20 @@ function MiniPal({ pal, big = false, tiny = false }: { pal: Pal; big?: boolean; 
       big ? 'min-w-[140px]' : tiny ? 'flex-1 min-w-0' : 'min-w-[120px]'
     }`}>
       <ElementStripe elements={pal.elements} />
-      <div className={tiny ? 'px-2 py-1' : 'px-3 py-2'}>
-        <div className={`font-semibold text-gray-900 dark:text-white truncate ${big ? 'text-lg' : tiny ? 'text-xs' : 'text-sm'}`}>
-          {pal.name}
-        </div>
-        {!tiny && (
-          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            <DexNumber pal={pal} />
-            {pal.elements.map(el => <ElementBadge key={el} element={el} compact />)}
-            {big && <RarityBadge rarity={pal.rarity} />}
+      <div className={`flex items-center gap-2 ${tiny ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
+        <PalPortrait pal={pal} size={tiny ? 28 : big ? 56 : 40} />
+        <div className="min-w-0">
+          <div className={`font-semibold text-gray-900 dark:text-white truncate ${big ? 'text-lg' : tiny ? 'text-xs' : 'text-sm'}`}>
+            {pal.name}
           </div>
-        )}
+          {!tiny && (
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              <DexNumber pal={pal} />
+              {pal.elements.map(el => <ElementBadge key={el} element={el} compact />)}
+              {big && <RarityBadge rarity={pal.rarity} />}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -316,6 +319,7 @@ function PalPicker({
                 onClick={() => { onChange(pal); setOpen(false); setQuery('') }}
                 className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
+                <PalPortrait pal={pal} size={26} />
                 <DexNumber pal={pal} />
                 <span className="text-sm text-gray-900 dark:text-white flex-1 truncate">{pal.name}</span>
                 {pal.elements.map(el => <ElementBadge key={el} element={el} compact />)}

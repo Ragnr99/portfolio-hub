@@ -1,98 +1,98 @@
 /**
- * Every destination on the site, in one place.
+ * Navigation, derived from the project registry.
  *
- * The header, the mobile bar and the command palette all read from here. They
- * used to each carry their own list, which is how the nav ended up showing 2 of
- * 10 pages and the Projects grid ended up pointing at a route that had moved.
+ * The nav used to be a second list of projects, which meant it grew with every
+ * project and duplicated the catalogue page. It is now purely structural:
+ *
+ *   Home    the landing page
+ *   Work    the one catalogue of everything
+ *   Search  reaches any page, tool or Pal directly
+ *
+ * Three items, fixed forever. A new project shows up in the catalogue and in
+ * search without the nav changing at all.
  */
 
-import {
-  Home, Briefcase, Newspaper, Gamepad2, Calculator, BookOpen, Egg, Map, Boxes,
-  type LucideIcon,
-} from 'lucide-react'
+import { Home, Briefcase, type LucideIcon } from 'lucide-react'
+import { PROJECTS } from './projects'
 
 export interface NavItem {
   path: string
   label: string
   icon: LucideIcon
-  /** Shown in the command palette under the title. */
   hint: string
-  /** Extra search terms so "type chart" finds the Palpedia, etc. */
   keywords?: string[]
-  /** Grouping for the palette, and which header item owns this route. */
-  section?: string
-  /** Show in the primary header nav. */
-  primary?: boolean
-  /**
-   * Show in the mobile bottom bar. Kept to four so each tab stays a comfortable
-   * thumb target; the fifth slot is Search, which reaches everything else.
-   */
-  mobile?: boolean
 }
 
+/** The whole top-level nav. Deliberately not a list of projects. */
 export const NAV_ITEMS: NavItem[] = [
-  { path: '/', label: 'Home', icon: Home, hint: 'Start here', primary: true, mobile: true },
+  { path: '/', label: 'Home', icon: Home, hint: 'Start here' },
   {
-    path: '/projects', label: 'Projects', icon: Briefcase, primary: true, mobile: true,
-    hint: 'Everything I have built', keywords: ['work', 'portfolio'],
-  },
-  {
-    path: '/palworld', label: 'Palworld', icon: Boxes, primary: true, mobile: true, section: 'Palworld',
-    hint: 'Palpedia, breeding and the map', keywords: ['pal', 'game tools'],
-  },
-  {
-    path: '/palworld/palpedia', label: 'Palpedia', icon: BookOpen, section: 'Palworld',
-    hint: 'All 288 Pals, stats and work suitability',
-    keywords: ['pal', 'dex', 'stats', 'element', 'type', 'work', 'partner skill'],
-  },
-  {
-    path: '/palworld/breeder', label: 'Pal Breeder', icon: Egg, section: 'Palworld',
-    hint: 'Parent pairs and breeding results',
-    keywords: ['pal', 'breed', 'egg', 'combo', 'child', 'parents'],
-  },
-  {
-    path: '/palworld/map', label: 'Palworld Map', icon: Map, section: 'Palworld',
-    hint: 'Spawns, chests, dungeons and fast travel',
-    keywords: ['pal', 'spawn', 'chest', 'dungeon', 'location'],
-  },
-  {
-    path: '/daybreak', label: 'Daybreak', icon: Newspaper, primary: true,
-    hint: 'News reader across the political spectrum',
-    keywords: ['news', 'reader', 'bias', 'blindspot'],
-  },
-  {
-    path: '/pokedex', label: 'Pokédex', icon: BookOpen, primary: true,
-    hint: 'All 1,025 Pokémon', keywords: ['pokemon', 'dex', 'stats'],
-  },
-  {
-    path: '/calc', label: 'Damage Calculator', icon: Calculator,
-    hint: 'Pokémon battle damage maths', keywords: ['pokemon', 'damage', 'battle', 'smogon'],
-  },
-  {
-    path: '/games', label: 'Arcade', icon: Gamepad2, primary: true, mobile: true,
-    hint: 'Snake, Tetris, Pac-Man and friends',
-    keywords: ['game', 'arcade', 'snake', 'tetris', 'pacman', 'breakout', 'asteroids', 'flappy'],
+    path: '/projects', label: 'Work', icon: Briefcase,
+    hint: 'Everything I have built',
+    keywords: ['projects', 'portfolio', 'all'],
   },
 ]
 
-export const PRIMARY_NAV = NAV_ITEMS.filter(i => i.primary)
-export const MOBILE_NAV = NAV_ITEMS.filter(i => i.mobile)
+/**
+ * Everything search can jump to: the two nav pages, every project, and every
+ * tool inside a project. Built from the registry, so it can't fall behind.
+ */
+export const SEARCHABLE: NavItem[] = [
+  ...NAV_ITEMS,
+  ...PROJECTS.flatMap(p => {
+    const entries: NavItem[] = []
+    if (p.demoUrl) {
+      entries.push({
+        path: p.demoUrl,
+        label: p.title,
+        icon: p.icon,
+        hint: p.description,
+        keywords: p.keywords,
+      })
+    }
+    for (const t of p.tools ?? []) {
+      entries.push({
+        path: t.path,
+        label: t.label,
+        icon: t.icon,
+        hint: t.hint,
+        // fold in the parent's terms so "palworld" finds the Palpedia
+        keywords: [...(t.keywords ?? []), ...(p.keywords ?? []), p.title],
+      })
+    }
+    return entries
+  }),
+]
+
+/** Deduped by path, longest label wins ties, for breadcrumb lookups. */
+const BY_PATH = new Map(SEARCHABLE.map(i => [i.path, i]))
 
 /**
- * Which nav item owns the current URL. Prefix-matched so /palworld/breeder
- * still highlights Palworld, with "/" special-cased so it doesn't match all.
+ * Which nav item owns the current URL. Everything below the top level lives
+ * under Work, so a project page highlights Work rather than nothing.
  */
 export function activeNavPath(pathname: string): string | null {
-  const matches = NAV_ITEMS
-    .filter(i => i.path === '/' ? pathname === '/' : pathname.startsWith(i.path))
-    .sort((a, b) => b.path.length - a.path.length)
-  return matches[0]?.path ?? null
+  if (pathname === '/') return '/'
+  return '/projects'
 }
 
-/** Trail from the site root down to `pathname`, for breadcrumbs. */
+/**
+ * Trail from the root down to `pathname`: Work > Palworld Tools > Palpedia.
+ * Gives deep pages a real way back up now that they have no top-level tab.
+ */
 export function breadcrumbFor(pathname: string): NavItem[] {
-  if (pathname === '/') return []
-  return NAV_ITEMS
-    .filter(i => i.path !== '/' && pathname.startsWith(i.path))
-    .sort((a, b) => a.path.length - b.path.length)
+  if (pathname === '/' || pathname === '/projects') return []
+
+  const trail: NavItem[] = [BY_PATH.get('/projects')!]
+  const owner = PROJECTS.find(p => p.demoUrl && pathname.startsWith(p.demoUrl))
+  if (owner?.demoUrl) {
+    trail.push({
+      path: owner.demoUrl, label: owner.title, icon: owner.icon, hint: owner.description,
+    })
+    const tool = owner.tools?.find(t => pathname === t.path)
+    if (tool) {
+      trail.push({ path: tool.path, label: tool.label, icon: tool.icon, hint: tool.hint })
+    }
+  }
+  return trail
 }

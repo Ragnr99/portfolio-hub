@@ -1,26 +1,22 @@
 import { Link } from 'react-router-dom'
-import { Newspaper, Gamepad2, Briefcase, ArrowRight, Github, Linkedin } from 'lucide-react'
+import { Briefcase, ArrowRight, Github, Linkedin } from 'lucide-react'
+import { PROJECTS } from '../lib/projects'
 
+// Derived from the registry, so a project flagged `featured` shows up here
+// without this file knowing anything about it. The catalogue link is pinned on
+// the end so there's always a way through to everything.
 const FEATURED = [
-  {
-    title: 'Daybreak',
-    description: 'A calm news reader that shows every story\'s political lean, tracks your media diet, and follows the markets.',
-    icon: Newspaper,
-    path: '/daybreak',
-    accent: 'from-orange-500 via-amber-400 to-rose-500',
-    tint: 'bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-300',
-  },
-  {
-    title: 'The Arcade',
-    description: 'Tetris, Breakout, Flappy, and three more classics on raw HTML5 canvas, with real game loops and local high scores.',
-    icon: Gamepad2,
-    path: '/games',
-    accent: 'from-fuchsia-500 via-purple-500 to-cyan-400',
-    tint: 'bg-fuchsia-100 dark:bg-fuchsia-900/40 text-fuchsia-600 dark:text-fuchsia-300',
-  },
+  ...PROJECTS.filter(p => p.featured).map(p => ({
+    title: p.title,
+    description: p.description,
+    icon: p.icon,
+    path: p.demoUrl ?? '/projects',
+    accent: p.accent,
+    tint: p.iconTint,
+  })),
   {
     title: 'All Projects',
-    description: 'The full list: what each thing is, how it\'s built, and where the code lives.',
+    description: 'The full list: what each thing is, how it is built, and where the code lives.',
     icon: Briefcase,
     path: '/projects',
     accent: 'from-indigo-500 via-sky-400 to-cyan-400',

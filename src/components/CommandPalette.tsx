@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, CornerDownLeft, ArrowUp, ArrowDown, X } from 'lucide-react'
-import { NAV_ITEMS, type NavItem } from '../lib/nav'
+import { SEARCHABLE, type NavItem } from '../lib/nav'
 import { usePalworldData, ELEMENT_COLORS, palImageSlug, type Pal } from '../hooks/usePalworldData'
 
 type Row =
@@ -45,7 +45,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
   const rows = useMemo<Row[]>(() => {
     const q = query.trim().toLowerCase()
 
-    const pages: Row[] = NAV_ITEMS
+    const pages: Row[] = SEARCHABLE
       .map(item => {
         const best = Math.max(
           score(item.label, q),

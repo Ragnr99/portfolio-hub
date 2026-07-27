@@ -1,30 +1,15 @@
 import { Link } from 'react-router-dom'
-import { Map, BookOpen, Egg, Monitor, Github, ArrowRight } from 'lucide-react'
+import { Egg, Monitor, Github, ArrowRight } from 'lucide-react'
 import { usePalworldData } from '../hooks/usePalworldData'
+import { PROJECTS } from '../lib/projects'
 
-const TOOLS = [
-  {
-    to: '/palworld/palpedia',
-    icon: BookOpen,
-    title: 'Palpedia',
-    blurb: 'Every Pal with real stats, work suitability, partner skills and drops. Filter by element, sort by whatever you actually care about.',
-    tint: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300',
-  },
-  {
-    to: '/palworld/breeder',
-    icon: Egg,
-    title: 'Breeder',
-    blurb: 'Pick two parents to see the child, or pick a target and get every pair that makes it. Straight from the game\'s own breeding table.',
-    tint: 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300',
-  },
-  {
-    to: '/palworld/map',
-    icon: Map,
-    title: 'Interactive Map',
-    blurb: 'The Palpagos Islands with ~13,400 markers: per-Pal day and night spawns, chests, dungeons, effigies and fast travel.',
-    tint: 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300',
-  },
+const TOOL_TINTS = [
+  'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300',
+  'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300',
+  'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300',
 ]
+
+const TOOLS = PROJECTS.find(p => p.id === 'palworld-tools')?.tools ?? []
 
 export default function Palworld() {
   const { data, loading } = usePalworldData()
@@ -44,20 +29,20 @@ export default function Palworld() {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {TOOLS.map(({ to, icon: Icon, title, blurb, tint }) => (
+        {TOOLS.map(({ path, icon: Icon, label, hint }, idx) => (
           <Link
-            key={to}
-            to={to}
+            key={path}
+            to={path}
             className="group rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all"
           >
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${tint}`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${TOOL_TINTS[idx % TOOL_TINTS.length]}`}>
               <Icon size={24} />
             </div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
-              {title}
+              {label}
               <ArrowRight size={16} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{blurb}</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{hint}</p>
           </Link>
         ))}
 

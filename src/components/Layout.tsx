@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Moon, Sun, Github, Linkedin, Search, ChevronRight } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import { PRIMARY_NAV, MOBILE_NAV, activeNavPath, breadcrumbFor } from '../lib/nav'
+import { NAV_ITEMS, activeNavPath, breadcrumbFor } from '../lib/nav'
 import CommandPalette from './CommandPalette'
 
 interface LayoutProps {
@@ -59,7 +59,7 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
 
             <nav className="hidden lg:flex space-x-1">
-              {PRIMARY_NAV.map(({ path, label, icon: Icon }) => (
+              {NAV_ITEMS.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
                   to={path}
@@ -177,8 +177,8 @@ export default function Layout({ children }: LayoutProps) {
         className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <div className="grid grid-cols-5">
-          {MOBILE_NAV.map(({ path, label, icon: Icon }) => (
+        <div className="grid grid-cols-3">
+          {NAV_ITEMS.map(({ path, label, icon: Icon }) => (
             <Link
               key={path}
               to={path}

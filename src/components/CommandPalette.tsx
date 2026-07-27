@@ -79,7 +79,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
   const go = (row: Row) => {
     onClose()
     if (row.kind === 'page') navigate(row.item.path)
-    else navigate(`/palworld/palpedia?pal=${row.pal.i}`)
+    else navigate(`/palworld/pal/${row.pal.slug}`)
   }
 
   const onKeyDown = (e: React.KeyboardEvent) => {

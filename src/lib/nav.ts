@@ -89,7 +89,11 @@ export function breadcrumbFor(pathname: string): NavItem[] {
     trail.push({
       path: owner.demoUrl, label: owner.title, icon: owner.icon, hint: owner.description,
     })
+    // /palworld/pal/:slug is a leaf of the Palpedia rather than a tool of its own
     const tool = owner.tools?.find(t => pathname === t.path)
+      ?? (pathname.startsWith('/palworld/pal/')
+          ? owner.tools?.find(t => t.path.endsWith('/palpedia'))
+          : undefined)
     if (tool) {
       trail.push({ path: tool.path, label: tool.label, icon: tool.icon, hint: tool.hint })
     }

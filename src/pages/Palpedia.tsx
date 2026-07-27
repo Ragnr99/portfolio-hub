@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { BookOpen, Search, X, Moon, Egg } from 'lucide-react'
+import { useMemo, useState } from 'react'
+
+import { BookOpen, Search, Moon } from 'lucide-react'
 import {
-  usePalworldData, ELEMENTS, ELEMENT_COLORS, WEAK_TO, STRONG_AGAINST,
-  WORK_LABELS, type Pal,
+  usePalworldData, ELEMENTS, ELEMENT_COLORS, WORK_LABELS, type Pal,
 } from '../hooks/usePalworldData'
+import { SmartLink } from '../lib/history'
 import {
-  ElementBadge, ElementStripe, StatBar, WorkGrid, RarityBadge, DexNumber, PalPortrait,
+  ElementBadge, ElementStripe, DexNumber, PalPortrait,
 } from '../components/PalBits'
 
 // Palworld's stat model doesn't map onto a Pokedex 1:1, so these are the axes
@@ -37,35 +37,6 @@ export default function Palpedia() {
   const [element, setElement] = useState<string | null>(null)
   const [work, setWork] = useState<string | null>(null)
   const [sortKey, setSortKey] = useState<SortKey>('dex')
-  const [selected, setSelected] = useState<Pal | null>(null)
-  const [params, setParams] = useSearchParams()
-
-  // ?pal=<index> opens straight to a Pal, which is how the Ctrl+K palette jumps
-  // here from anywhere on the site.
-  useEffect(() => {
-    if (!data) return
-    const raw = params.get('pal')
-    if (raw === null) return
-    const pal = data.all[Number(raw)]
-    if (pal && !pal.hidden) setSelected(pal)
-  }, [data, params])
-
-  const closeDetail = () => {
-    setSelected(null)
-    if (params.has('pal')) {
-      params.delete('pal')
-      setParams(params, { replace: true })
-    }
-  }
-
-  const maxes = useMemo(() => {
-    if (!data) return { hp: 1, attack: 1, defense: 1 }
-    return {
-      hp: Math.max(...data.pals.map(p => p.hp)),
-      attack: Math.max(...data.pals.map(p => p.attack)),
-      defense: Math.max(...data.pals.map(p => p.defense)),
-    }
-  }, [data])
 
   const shown = useMemo(() => {
     if (!data) return []
@@ -144,10 +115,10 @@ export default function Palpedia() {
       {/* Grid */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {shown.map(pal => (
-          <button
+          <SmartLink
             key={pal.i}
-            onClick={() => setSelected(pal)}
-            className="text-left rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all"
+            to={`/palworld/pal/${pal.slug}`}
+            className="block text-left rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all"
           >
             <ElementStripe elements={pal.elements} />
             <div className="p-3 space-y-2">
@@ -172,7 +143,7 @@ export default function Palpedia() {
                 <span>DEF {pal.defense}</span>
               </div>
             </div>
-          </button>
+          </SmartLink>
         ))}
       </div>
 
@@ -180,9 +151,6 @@ export default function Palpedia() {
         <p className="text-center py-12 text-gray-400 dark:text-gray-500">No Pals match those filters.</p>
       )}
 
-      {selected && (
-        <PalDetail pal={selected} workKeys={data.workKeys} maxes={maxes} onClose={closeDetail} />
-      )}
     </Shell>
   )
 }
@@ -221,129 +189,3 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
   )
 }
 
-function PalDetail({
-  pal, workKeys, maxes, onClose,
-}: {
-  pal: Pal
-  workKeys: string[]
-  maxes: { hp: number; attack: number; defense: number }
-  onClose: () => void
-}) {
-  const weaknesses = [...new Set(pal.elements.map(e => WEAK_TO[e]).filter(Boolean))]
-  const strengths = [...new Set(pal.elements.flatMap(e => STRONG_AGAINST[e] ?? []))]
-
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-      onClick={onClose}
-      role="presentation"
-    >
-      <div
-        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-gray-800 shadow-2xl"
-        onClick={e => e.stopPropagation()}
-      >
-        <ElementStripe elements={pal.elements} />
-        <div className="p-6 space-y-5">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex gap-4">
-              <PalPortrait pal={pal} size={88} />
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{pal.name}</h2>
-                  <DexNumber pal={pal} />
-                  <RarityBadge rarity={pal.rarity} />
-                </div>
-                <div className="flex gap-1.5 mt-2 flex-wrap">
-                  {pal.elements.map(el => <ElementBadge key={el} element={el} />)}
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              aria-label="Close"
-              className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <StatBar label="HP" value={pal.hp} max={maxes.hp} color="#22c55e" />
-            <StatBar label="Attack" value={pal.attack} max={maxes.attack} color="#ef4444" />
-            <StatBar label="Defense" value={pal.defense} max={maxes.defense} color="#3b82f6" />
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-            <Fact label="Size" value={pal.size} />
-            <Fact label="Food" value={`${pal.food}/tick`} />
-            <Fact label="Wild level" value={`${pal.wild[0]}–${pal.wild[1]}`} />
-            <Fact label="Nocturnal" value={pal.nocturnal ? 'Yes' : 'No'} />
-          </div>
-
-          <Section title="Work suitability">
-            <WorkGrid pal={pal} workKeys={workKeys} />
-          </Section>
-
-          <Section title="Type matchups">
-            <div className="space-y-1.5 text-sm">
-              <div className="flex gap-2 items-center flex-wrap">
-                <span className="text-gray-500 dark:text-gray-400 w-20">Weak to</span>
-                {weaknesses.length
-                  ? weaknesses.map(w => <ElementBadge key={w} element={w} />)
-                  : <span className="text-gray-400">Nothing</span>}
-              </div>
-              <div className="flex gap-2 items-center flex-wrap">
-                <span className="text-gray-500 dark:text-gray-400 w-20">Strong vs</span>
-                {strengths.length
-                  ? strengths.map(s => <ElementBadge key={s} element={s} />)
-                  : <span className="text-gray-400">Nothing</span>}
-              </div>
-            </div>
-          </Section>
-
-          {pal.partnerSkill && (
-            <Section title="Partner skill">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{pal.partnerSkill}</p>
-              {pal.partnerDesc && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">{pal.partnerDesc}</p>
-              )}
-            </Section>
-          )}
-
-          {pal.drops.length > 0 && (
-            <Section title="Drops">
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-0.5">
-                {pal.drops.map((d, k) => <li key={k}>{d}</li>)}
-              </ul>
-            </Section>
-          )}
-
-          <Link
-            to={`/palworld/breeder?target=${pal.i}`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 transition-opacity text-sm font-medium"
-          >
-            <Egg size={16} /> How do I breed {pal.name}?
-          </Link>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">{title}</h3>
-      {children}
-    </div>
-  )
-}
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg bg-gray-50 dark:bg-gray-700/40 px-3 py-2">
-      <div className="text-[11px] text-gray-500 dark:text-gray-400">{label}</div>
-      <div className="font-semibold text-gray-900 dark:text-white">{value}</div>
-    </div>
-  )
-}

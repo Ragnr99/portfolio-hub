@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info } from 'lucide-react'
 import { usePalworldData, type Pal, type PalworldData } from '../hooks/usePalworldData'
+import { SmartLink } from '../lib/history'
 import { ElementBadge, ElementStripe, RarityBadge, DexNumber, PalPortrait } from '../components/PalBits'
 
 type Mode = 'pair' | 'target'
@@ -238,9 +239,12 @@ function Shell({ mode, setMode, children }: { mode: Mode; setMode: (m: Mode) => 
 
 function MiniPal({ pal, big = false, tiny = false }: { pal: Pal; big?: boolean; tiny?: boolean }) {
   return (
-    <div className={`rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 ${
-      big ? 'min-w-[140px]' : tiny ? 'flex-1 min-w-0' : 'min-w-[120px]'
-    }`}>
+    <SmartLink
+      to={`/palworld/pal/${pal.slug}`}
+      className={`block rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors ${
+        big ? 'min-w-[140px]' : tiny ? 'flex-1 min-w-0' : 'min-w-[120px]'
+      }`}
+    >
       <ElementStripe elements={pal.elements} />
       <div className={`flex items-center gap-2 ${tiny ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
         <PalPortrait pal={pal} size={tiny ? 28 : big ? 56 : 40} />
@@ -257,7 +261,7 @@ function MiniPal({ pal, big = false, tiny = false }: { pal: Pal; big?: boolean; 
           )}
         </div>
       </div>
-    </div>
+    </SmartLink>
   )
 }
 

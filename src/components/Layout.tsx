@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { SmartLink } from '../lib/history'
 import { Moon, Sun, Github, Linkedin, Search, ChevronRight } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { NAV_ITEMS, activeNavPath, breadcrumbFor } from '../lib/nav'
@@ -60,7 +61,7 @@ export default function Layout({ children }: LayoutProps) {
 
             <nav className="hidden lg:flex space-x-1">
               {NAV_ITEMS.map(({ path, label, icon: Icon }) => (
-                <Link
+                <SmartLink
                   key={path}
                   to={path}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
@@ -71,7 +72,7 @@ export default function Layout({ children }: LayoutProps) {
                 >
                   <Icon size={17} />
                   <span className="font-medium text-sm">{label}</span>
-                </Link>
+                </SmartLink>
               ))}
             </nav>
 
@@ -104,18 +105,18 @@ export default function Layout({ children }: LayoutProps) {
         {crumbs.length > 0 && (
           <div className="border-t border-gray-200/70 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/60">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-1 text-sm overflow-x-auto">
-              <Link to="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <SmartLink to="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                 Home
-              </Link>
+              </SmartLink>
               {crumbs.map((c, i) => (
                 <span key={c.path} className="flex items-center gap-1 whitespace-nowrap">
                   <ChevronRight size={14} className="text-gray-300 dark:text-gray-600" />
                   {i === crumbs.length - 1 ? (
                     <span className="font-medium text-gray-900 dark:text-white">{c.label}</span>
                   ) : (
-                    <Link to={c.path} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <SmartLink to={c.path} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                       {c.label}
-                    </Link>
+                    </SmartLink>
                   )}
                 </span>
               ))}
@@ -179,7 +180,7 @@ export default function Layout({ children }: LayoutProps) {
       >
         <div className="grid grid-cols-3">
           {NAV_ITEMS.map(({ path, label, icon: Icon }) => (
-            <Link
+            <SmartLink
               key={path}
               to={path}
               aria-current={active === path ? 'page' : undefined}
@@ -191,7 +192,7 @@ export default function Layout({ children }: LayoutProps) {
             >
               <Icon size={21} />
               <span className="text-[10px] font-medium leading-none truncate max-w-full">{label}</span>
-            </Link>
+            </SmartLink>
           ))}
           <button
             onClick={() => setPaletteOpen(true)}

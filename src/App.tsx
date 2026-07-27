@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
+import { NavStackProvider } from './lib/history'
 import Home from './pages/Home'
 import Daybreak from './pages/Daybreak'
 import Projects from './pages/Projects'
@@ -11,11 +12,13 @@ import Palworld from './pages/Palworld'
 import PalworldMap from './pages/PalworldMap'
 import Palpedia from './pages/Palpedia'
 import PalBreeder from './pages/PalBreeder'
+import PalPage from './pages/PalPage'
 
 function App() {
   return (
     <ThemeProvider>
       <Router basename={import.meta.env.BASE_URL}>
+        <NavStackProvider>
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -28,8 +31,10 @@ function App() {
             <Route path="/palworld/map" element={<PalworldMap />} />
             <Route path="/palworld/palpedia" element={<Palpedia />} />
             <Route path="/palworld/breeder" element={<PalBreeder />} />
+            <Route path="/palworld/pal/:slug" element={<PalPage />} />
           </Routes>
         </Layout>
+        </NavStackProvider>
       </Router>
     </ThemeProvider>
   )

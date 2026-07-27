@@ -42,6 +42,8 @@ export interface Pal {
   partnerSkill: string
   partnerDesc: string
   drops: string[]
+  /** URL slug, assigned in build() so it's guaranteed unique. */
+  slug: string
 }
 
 interface GenderPair {
@@ -90,6 +92,7 @@ function build(raw: RawData): PalworldData {
   const { n, tri: triB64, genderPairs } = raw.breeding
   const tri = decodeTri(triB64)
   const all = raw.pals
+  assignSlugs(all)
 
   const lookup = (a: number, b: number): number => {
     const lo = Math.min(a, b)
@@ -173,9 +176,37 @@ export function usePalworldData() {
   return { data, loading, error }
 }
 
+/** "Fuack Ignis" -> "fuack-ignis". Not unique on its own: see assignSlugs. */
+const baseSlug = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
 /**
- * Portrait filename for a Pal, under public/pal-images/.
- * Keyed on the internal name because it survives game patches, unlike dex order.
+ * Give every Pal a unique URL slug.
+ *
+ * Display names are *almost* unique. Gumoss and its flower variant share one,
+ * so a plain name slug would make one of them unreachable. Collisions fall back
+ * to the internal name's variant suffix (PlantSlime_Flower -> "gumoss-flower"),
+ * and to a counter if even that repeats. The first Pal to claim a slug keeps
+ * the clean one, so /palworld/pal/gumoss still resolves.
+ */
+function assignSlugs(pals: Pal[]) {
+  const used = new Map<string, number>()
+  for (const p of pals) {
+    const base = baseSlug(p.name)
+    const seen = (used.get(base) ?? 0) + 1
+    used.set(base, seen)
+    if (seen === 1) {
+      p.slug = base
+    } else {
+      const suffix = p.internal.split('_')[1]
+      p.slug = suffix ? `${base}-${baseSlug(suffix)}` : `${base}-${seen}`
+    }
+  }
+}
+
+/**
+ * Portrait filename, under public/pal-images/. Keyed on the internal name
+ * because it survives game patches, unlike dex order.
  * Must stay identical to slug() in scripts/fetch-pal-images.js.
  */
 export const palImageSlug = (internal: string) =>

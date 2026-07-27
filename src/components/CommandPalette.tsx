@@ -11,7 +11,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, CornerDownLeft, ArrowUp, ArrowDown } from 'lucide-react'
+import { Search, CornerDownLeft, ArrowUp, ArrowDown, X } from 'lucide-react'
 import { NAV_ITEMS, type NavItem } from '../lib/nav'
 import { usePalworldData, ELEMENT_COLORS, palImageSlug, type Pal } from '../hooks/usePalworldData'
 
@@ -93,18 +93,23 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-start justify-center pt-[12vh] px-4"
+      className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-stretch sm:items-start justify-center sm:pt-[12vh] sm:px-4"
       onMouseDown={onClose}
       role="presentation"
     >
+      {/* Full-screen sheet on a phone, centred dialog from sm up. Uses dvh so
+          the mobile browser's collapsing address bar doesn't clip the list. */}
       <div
-        className="w-full max-w-xl rounded-2xl bg-white dark:bg-gray-800 shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700"
+        className="flex flex-col w-full h-[100dvh] sm:h-auto sm:max-w-xl sm:rounded-2xl bg-white dark:bg-gray-800 shadow-2xl overflow-hidden sm:border border-gray-200 dark:border-gray-700"
         onMouseDown={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Search pages and Pals"
       >
-        <div className="flex items-center gap-3 px-4 border-b border-gray-200 dark:border-gray-700">
+        <div
+          className="flex items-center gap-3 px-4 border-b border-gray-200 dark:border-gray-700 shrink-0"
+          style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        >
           <Search size={18} className="text-gray-400 shrink-0" />
           <input
             ref={inputRef}
@@ -112,14 +117,23 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
             onChange={e => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Search pages and Pals…"
-            className="flex-1 py-4 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="go"
+            /* 16px minimum, or iOS Safari zooms the whole page on focus */
+            className="flex-1 py-4 bg-transparent text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
           />
-          <kbd className="hidden sm:block text-[10px] font-sans px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 text-gray-400">
-            esc
-          </kbd>
+          <button
+            onClick={onClose}
+            aria-label="Close search"
+            className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <ul ref={listRef} className="max-h-[52vh] overflow-y-auto py-2">
+        <ul ref={listRef} className="flex-1 sm:flex-none sm:max-h-[52vh] overflow-y-auto py-2 overscroll-contain">
           {rows.length === 0 && (
             <li className="px-4 py-8 text-center text-sm text-gray-400">
               Nothing matches "{query}".
@@ -139,7 +153,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
                   data-active={active}
                   onMouseEnter={() => setCursor(idx)}
                   onClick={() => go(row)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 min-h-[56px] sm:min-h-0 sm:py-2.5 text-left transition-colors ${
                     active ? 'bg-indigo-50 dark:bg-indigo-950/50' : ''
                   }`}
                 >
@@ -181,17 +195,21 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
                       </span>
                     </>
                   )}
-                  {active && <CornerDownLeft size={14} className="shrink-0 text-indigo-400" />}
+                  {active && <CornerDownLeft size={14} className="hidden sm:block shrink-0 text-indigo-400" />}
                 </button>
               </li>
             )
           })}
         </ul>
 
-        <div className="flex items-center gap-4 px-4 py-2 border-t border-gray-200 dark:border-gray-700 text-[11px] text-gray-400">
-          <span className="flex items-center gap-1"><ArrowUp size={11} /><ArrowDown size={11} /> navigate</span>
-          <span className="flex items-center gap-1"><CornerDownLeft size={11} /> open</span>
-          <span className="ml-auto">{rows.length} result{rows.length === 1 ? '' : 's'}</span>
+        {/* Keyboard hints only make sense where there's a keyboard. */}
+        <div
+          className="flex items-center gap-4 px-4 py-2 border-t border-gray-200 dark:border-gray-700 text-[11px] text-gray-400 shrink-0"
+          style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+        >
+          <span className="hidden sm:flex items-center gap-1"><ArrowUp size={11} /><ArrowDown size={11} /> navigate</span>
+          <span className="hidden sm:flex items-center gap-1"><CornerDownLeft size={11} /> open</span>
+          <span className="sm:ml-auto">{rows.length} result{rows.length === 1 ? '' : 's'}</span>
         </div>
       </div>
     </div>

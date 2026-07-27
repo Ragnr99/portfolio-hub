@@ -23,16 +23,21 @@ export interface NavItem {
   section?: string
   /** Show in the primary header nav. */
   primary?: boolean
+  /**
+   * Show in the mobile bottom bar. Kept to four so each tab stays a comfortable
+   * thumb target; the fifth slot is Search, which reaches everything else.
+   */
+  mobile?: boolean
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { path: '/', label: 'Home', icon: Home, hint: 'Start here', primary: true },
+  { path: '/', label: 'Home', icon: Home, hint: 'Start here', primary: true, mobile: true },
   {
-    path: '/projects', label: 'Projects', icon: Briefcase, primary: true,
+    path: '/projects', label: 'Projects', icon: Briefcase, primary: true, mobile: true,
     hint: 'Everything I have built', keywords: ['work', 'portfolio'],
   },
   {
-    path: '/palworld', label: 'Palworld', icon: Boxes, primary: true, section: 'Palworld',
+    path: '/palworld', label: 'Palworld', icon: Boxes, primary: true, mobile: true, section: 'Palworld',
     hint: 'Palpedia, breeding and the map', keywords: ['pal', 'game tools'],
   },
   {
@@ -64,13 +69,14 @@ export const NAV_ITEMS: NavItem[] = [
     hint: 'Pokémon battle damage maths', keywords: ['pokemon', 'damage', 'battle', 'smogon'],
   },
   {
-    path: '/games', label: 'The Arcade', icon: Gamepad2, primary: true,
+    path: '/games', label: 'Arcade', icon: Gamepad2, primary: true, mobile: true,
     hint: 'Snake, Tetris, Pac-Man and friends',
     keywords: ['game', 'arcade', 'snake', 'tetris', 'pacman', 'breakout', 'asteroids', 'flappy'],
   },
 ]
 
 export const PRIMARY_NAV = NAV_ITEMS.filter(i => i.primary)
+export const MOBILE_NAV = NAV_ITEMS.filter(i => i.mobile)
 
 /**
  * Which nav item owns the current URL. Prefix-matched so /palworld/breeder

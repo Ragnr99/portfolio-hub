@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Moon, Sun, Github, Linkedin, Search, ChevronRight } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-import { PRIMARY_NAV, activeNavPath, breadcrumbFor } from '../lib/nav'
+import { PRIMARY_NAV, MOBILE_NAV, activeNavPath, breadcrumbFor } from '../lib/nav'
 import CommandPalette from './CommandPalette'
 
 interface LayoutProps {
   children: React.ReactNode
 }
-
-const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
@@ -25,6 +23,9 @@ export default function Layout({ children }: LayoutProps) {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [location.pathname])
 
+  // Ctrl/Cmd+K still works for anyone on a keyboard, but nothing in the UI
+  // depends on knowing it: search is a tap target in the header and a tab in
+  // the mobile bar.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -35,6 +36,12 @@ export default function Layout({ children }: LayoutProps) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+
+  // The palette covers the screen on a phone; stop the page scrolling under it.
+  useEffect(() => {
+    document.body.style.overflow = paletteOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [paletteOpen])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors flex flex-col">
@@ -71,19 +78,16 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setPaletteOpen(true)}
-                aria-label="Search"
-                className="flex items-center gap-2 px-2.5 sm:px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                aria-label="Search pages and Pals"
+                className="flex items-center gap-2 min-h-[44px] px-3 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                <Search size={16} />
+                <Search size={18} />
                 <span className="hidden sm:block text-sm">Search</span>
-                <kbd className="hidden md:block text-[10px] font-sans px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600">
-                  {isMac ? '⌘' : 'Ctrl '}K
-                </kbd>
               </button>
 
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 aria-label="Toggle dark mode"
               >
                 {theme === 'light' ? (
@@ -120,28 +124,9 @@ export default function Layout({ children }: LayoutProps) {
         )}
       </header>
 
-      {/* Mobile / tablet nav: scrolls sideways rather than dropping items */}
-      <nav className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 overflow-x-auto">
-        <div className="flex min-w-max">
-          {PRIMARY_NAV.map(({ path, label, icon: Icon }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`flex flex-col items-center gap-1 py-2.5 px-5 ${
-                active === path
-                  ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60'
-                  : 'text-gray-600 dark:text-gray-300'
-              }`}
-            >
-              <Icon size={19} />
-              <span className="text-[11px] whitespace-nowrap">{label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-
-      {/* Keyed on the path so each page cross-fades in instead of snapping */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      {/* Keyed on the path so each page cross-fades in instead of snapping.
+          Bottom padding clears the fixed mobile tab bar. */}
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-8 pb-28 lg:pb-8 flex-1">
         <div key={location.pathname} className="page-enter">
           {children}
         </div>
@@ -181,15 +166,43 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
           <p className="text-center sm:text-left text-xs text-gray-400 dark:text-gray-600 mt-4">
-            © {new Date().getFullYear()} Nicholas Lubold · nicholaslubold.com · press{' '}
-            <kbd className="px-1 py-0.5 rounded border border-gray-300 dark:border-gray-700 font-sans">
-              {isMac ? '⌘' : 'Ctrl'}
-            </kbd>
-            <kbd className="px-1 py-0.5 rounded border border-gray-300 dark:border-gray-700 font-sans">K</kbd>{' '}
-            to jump anywhere
+            © {new Date().getFullYear()} Nicholas Lubold · nicholaslubold.com
           </p>
         </div>
       </footer>
+
+      {/* Mobile: fixed bottom tab bar, thumb-reachable. Four destinations plus
+          Search, which reaches the pages that don't fit here. */}
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="grid grid-cols-5">
+          {MOBILE_NAV.map(({ path, label, icon: Icon }) => (
+            <Link
+              key={path}
+              to={path}
+              aria-current={active === path ? 'page' : undefined}
+              className={`flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 transition-colors ${
+                active === path
+                  ? 'text-indigo-600 dark:text-indigo-300'
+                  : 'text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+              }`}
+            >
+              <Icon size={21} />
+              <span className="text-[10px] font-medium leading-none truncate max-w-full">{label}</span>
+            </Link>
+          ))}
+          <button
+            onClick={() => setPaletteOpen(true)}
+            aria-label="Search pages and Pals"
+            className="flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800 transition-colors"
+          >
+            <Search size={21} />
+            <span className="text-[10px] font-medium leading-none">Search</span>
+          </button>
+        </div>
+      </nav>
 
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
     </div>

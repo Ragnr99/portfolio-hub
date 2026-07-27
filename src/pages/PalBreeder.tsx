@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { Egg, ChevronLeft, Search, ArrowRight, Shuffle, Venus, Mars, Info } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info } from 'lucide-react'
 import { usePalworldData, type Pal, type PalworldData } from '../hooks/usePalworldData'
 import { ElementBadge, ElementStripe, RarityBadge, DexNumber, PalPortrait } from '../components/PalBits'
 
@@ -203,13 +203,6 @@ function TargetMode({
 function Shell({ mode, setMode, children }: { mode: Mode; setMode: (m: Mode) => void; children: React.ReactNode }) {
   return (
     <div className="space-y-6">
-      <Link
-        to="/palworld"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-      >
-        <ChevronLeft size={16} /> Palworld tools
-      </Link>
-
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300">
           <Egg size={28} />

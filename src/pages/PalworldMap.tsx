@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { ExternalLink, Github, Map, ChevronLeft } from 'lucide-react'
+
+import { ExternalLink, Github, Map } from 'lucide-react'
 
 // The interactive map is a self-contained Leaflet app, built from the
 // palworld-map repo and hosted here under /public/palworld-app (deliberately a
@@ -11,13 +11,6 @@ const MAP_URL = `${import.meta.env.BASE_URL}palworld-app/index.html`
 export default function PalworldMap() {
   return (
     <div className="space-y-6">
-      <Link
-        to="/palworld"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-      >
-        <ChevronLeft size={16} /> Palworld tools
-      </Link>
-
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300">

@@ -61,3 +61,27 @@
 .animate-attack-enemy {
   animation: pokemon-attack-enemy 0.8s ease-in-out;
 }
+
+/* Page transition: each route cross-fades in rather than snapping into place.
+   Keyed on pathname in Layout, so it re-runs on every navigation. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.22s ease-out;
+}
+
+/* Respect users who have asked the OS to cut down on motion. */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+}

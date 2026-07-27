@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { BookOpen, ChevronLeft, Search, X, Moon, Egg } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { BookOpen, Search, X, Moon, Egg } from 'lucide-react'
 import {
   usePalworldData, ELEMENTS, ELEMENT_COLORS, WEAK_TO, STRONG_AGAINST,
   WORK_LABELS, type Pal,
@@ -38,6 +38,25 @@ export default function Palpedia() {
   const [work, setWork] = useState<string | null>(null)
   const [sortKey, setSortKey] = useState<SortKey>('dex')
   const [selected, setSelected] = useState<Pal | null>(null)
+  const [params, setParams] = useSearchParams()
+
+  // ?pal=<index> opens straight to a Pal, which is how the Ctrl+K palette jumps
+  // here from anywhere on the site.
+  useEffect(() => {
+    if (!data) return
+    const raw = params.get('pal')
+    if (raw === null) return
+    const pal = data.all[Number(raw)]
+    if (pal && !pal.hidden) setSelected(pal)
+  }, [data, params])
+
+  const closeDetail = () => {
+    setSelected(null)
+    if (params.has('pal')) {
+      params.delete('pal')
+      setParams(params, { replace: true })
+    }
+  }
 
   const maxes = useMemo(() => {
     if (!data) return { hp: 1, attack: 1, defense: 1 }
@@ -162,7 +181,7 @@ export default function Palpedia() {
       )}
 
       {selected && (
-        <PalDetail pal={selected} workKeys={data.workKeys} maxes={maxes} onClose={() => setSelected(null)} />
+        <PalDetail pal={selected} workKeys={data.workKeys} maxes={maxes} onClose={closeDetail} />
       )}
     </Shell>
   )
@@ -171,12 +190,6 @@ export default function Palpedia() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="space-y-6">
-      <Link
-        to="/palworld"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-      >
-        <ChevronLeft size={16} /> Palworld tools
-      </Link>
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300">
           <BookOpen size={28} />

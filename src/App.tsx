@@ -13,6 +13,7 @@ import PalworldMap from './pages/PalworldMap'
 import Palpedia from './pages/Palpedia'
 import PalBreeder from './pages/PalBreeder'
 import PalPage from './pages/PalPage'
+import PokemonPage from './pages/PokemonPage'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/games" element={<Games />} />
             <Route path="/pokedex" element={<Pokedex />} />
+            <Route path="/pokedex/:slug" element={<PokemonPage />} />
             <Route path="/calc" element={<DamageCalc />} />
             <Route path="/palworld" element={<Palworld />} />
             <Route path="/palworld/map" element={<PalworldMap />} />

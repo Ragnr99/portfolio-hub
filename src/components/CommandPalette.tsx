@@ -98,7 +98,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
     onClose()
     if (row.kind === 'page') navigate(row.item.path)
     else if (row.kind === 'pal') navigate(`/palworld/pal/${row.pal.slug}`)
-    else navigate(`/pokedex?pokemon=${row.mon.id}`)
+    else navigate(`/pokedex/${row.mon.name}`)
   }
 
   const onKeyDown = (e: React.KeyboardEvent) => {

@@ -1,5 +1,5 @@
-import { useSearchParams } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
+import { useNavStack } from '../lib/history'
+import { useState, useEffect } from 'react'
 import { Search, ChevronDown, ChevronUp } from 'lucide-react'
 import { TYPE_COLORS } from '../utils/pokemonConstants'
 
@@ -99,7 +99,7 @@ const TYPE_CHART: Record<string, Record<string, number>> = {
 }
 
 export default function Pokedex() {
-  const [searchParams] = useSearchParams()
+  const { go } = useNavStack()
   const [pokemonList, setPokemonList] = useState<PokemonListItem[]>([])
   const [pokemonBasicData, setPokemonBasicData] = useState<Map<number, PokemonBasic>>(new Map())
   const [filteredPokemon, setFilteredPokemon] = useState<PokemonListItem[]>([])
@@ -569,20 +569,6 @@ export default function Pokedex() {
     }
   }
 
-  // ?pokemon=<id> opens straight to one, which is how the search palette gets
-  // here. Runs once the list is loaded, and only when the id actually changes,
-  // so it doesn't fight the user closing the panel.
-  const deepLinked = useRef<number | null>(null)
-  useEffect(() => {
-    const raw = searchParams.get('pokemon')
-    if (raw === null || !pokemonList.length) return
-    const id = Number(raw)
-    if (!Number.isFinite(id) || deepLinked.current === id) return
-    const match = pokemonList.find((p) => p.id === id)
-    if (!match) return
-    deepLinked.current = id
-    handlePokemonClick(match, 0)
-  }, [searchParams, pokemonList])
 
 
   const toggleSection = (section: string) => {
@@ -636,10 +622,12 @@ export default function Pokedex() {
               const basicData = pokemonBasicData.get(id)
 
               return (
-                <div key={id}>
-                  {/* Pokemon List Item - Wide Layout */}
+                <div key={id} className="relative">
+                  {/* The row opens the Pokemon's own page, the same way a Pal
+                      card does. Quick view (below) keeps the inline panel, which
+                      is still the only place with moves and evolution chains. */}
                   <button
-                    onClick={() => handlePokemonClick(pokemon, id - 1)}
+                    onClick={() => go(`/pokedex/${pokemon.name}`)}
                     className={`w-full px-6 py-4 flex items-center gap-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
                       isSelected ? 'bg-blue-50 dark:bg-blue-900/30' : ''
                     }`}
@@ -670,6 +658,8 @@ export default function Pokedex() {
                         ))}
                       </div>
                     </div>
+
+                    <span className="w-24 shrink-0" aria-hidden="true" />
 
                     {/* Right: Base Stats */}
                     {basicData && (
@@ -706,6 +696,12 @@ export default function Pokedex() {
                         </div>
                       </div>
                     )}
+                  </button>
+                  <button
+                    onClick={() => handlePokemonClick(pokemon, id - 1)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {isSelected ? 'Hide' : 'Quick view'}
                   </button>
 
                   {/* Expanded Pokemon Details (inline below) */}

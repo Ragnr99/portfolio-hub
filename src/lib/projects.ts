@@ -99,7 +99,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'pokedex',
-    keywords: ['pokemon','dex','stats','moves','evolution'],
+    keywords: ['pokemon','dex','stats','moves','evolution','pokedex'],
     title: 'Pokédex',
     description: 'A searchable Pokédex for every species',
     longDescription:

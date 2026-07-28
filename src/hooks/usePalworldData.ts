@@ -1,8 +1,8 @@
 /**
  * Palworld Data Hook
  *
- * Loads public/palworld-data.json once and shares it across every Palworld page,
- * the same module-level cache trick usePokemonData uses.
+ * Loads public/palworld-data.json once and shares it across every Palworld page
+ * via a module-level cache, the same way usePokemonIndex does.
  *
  * The interesting part is breeding. Palworld's real parent -> child table can't
  * be reduced to a tidy formula: the community "average the two CombiRanks and

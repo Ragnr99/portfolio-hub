@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
 import { Search, ChevronDown, ChevronUp } from 'lucide-react'
 import { TYPE_COLORS } from '../utils/pokemonConstants'
 
@@ -98,6 +99,7 @@ const TYPE_CHART: Record<string, Record<string, number>> = {
 }
 
 export default function Pokedex() {
+  const [searchParams] = useSearchParams()
   const [pokemonList, setPokemonList] = useState<PokemonListItem[]>([])
   const [pokemonBasicData, setPokemonBasicData] = useState<Map<number, PokemonBasic>>(new Map())
   const [filteredPokemon, setFilteredPokemon] = useState<PokemonListItem[]>([])
@@ -566,6 +568,22 @@ export default function Pokedex() {
       document.body.classList.remove('loading')
     }
   }
+
+  // ?pokemon=<id> opens straight to one, which is how the search palette gets
+  // here. Runs once the list is loaded, and only when the id actually changes,
+  // so it doesn't fight the user closing the panel.
+  const deepLinked = useRef<number | null>(null)
+  useEffect(() => {
+    const raw = searchParams.get('pokemon')
+    if (raw === null || !pokemonList.length) return
+    const id = Number(raw)
+    if (!Number.isFinite(id) || deepLinked.current === id) return
+    const match = pokemonList.find((p) => p.id === id)
+    if (!match) return
+    deepLinked.current = id
+    handlePokemonClick(match, 0)
+  }, [searchParams, pokemonList])
+
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))

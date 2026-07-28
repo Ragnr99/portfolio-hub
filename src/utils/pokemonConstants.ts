@@ -39,8 +39,6 @@ export const STATUS_COLORS: Record<string, string> = {
 }
 
 // Only Pokemon with base stat totals of 400+ are allowed in battles
-// This filters out really weak Pokemon to keep battles interesting
-export const MIN_BASE_STAT_TOTAL = 400
 
 // All Pokemon are set to level 50 for balanced competitive battles
 // Level 50 is the standard for official Pokemon tournaments

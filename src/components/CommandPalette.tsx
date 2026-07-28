@@ -14,12 +14,15 @@ import { useNavigate } from 'react-router-dom'
 import { Search, CornerDownLeft, ArrowUp, ArrowDown, X } from 'lucide-react'
 import { SEARCHABLE, type NavItem } from '../lib/nav'
 import { usePalworldData, ELEMENT_COLORS, palImageSlug, type Pal } from '../hooks/usePalworldData'
+import { usePokemonIndex, prettyPokemonName, type PokemonEntry } from '../hooks/usePokemonIndex'
+import { TYPE_COLORS } from '../utils/pokemonConstants'
 
 type Row =
   | { kind: 'page'; item: NavItem; score: number }
   | { kind: 'pal'; pal: Pal; score: number }
+  | { kind: 'pokemon'; mon: PokemonEntry; score: number }
 
-const MAX_PALS = 8
+const MAX_PER_GROUP = 8
 
 /** Higher is better. Prefix beats word-start beats anything-substring. */
 function score(haystack: string, needle: string): number {
@@ -32,9 +35,18 @@ function score(haystack: string, needle: string): number {
   return 0
 }
 
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+      {children}
+    </div>
+  )
+}
+
 export default function CommandPalette({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate()
   const { data } = usePalworldData()
+  const pokemon = usePokemonIndex()
   const [query, setQuery] = useState('')
   const [cursor, setCursor] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -57,16 +69,22 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
       .filter(r => r.score > 0)
       .sort((a, b) => b.score - a.score)
 
-    if (!q || !data) return pages
+    if (!q) return pages
 
-    const pals: Row[] = data.pals
+    const pals: Row[] = (data?.pals ?? [])
       .map(pal => ({ kind: 'pal' as const, pal, score: score(pal.name, q) }))
       .filter(r => r.score > 0)
       .sort((a, b) => b.score - a.score || a.pal.dex - b.pal.dex)
-      .slice(0, MAX_PALS)
+      .slice(0, MAX_PER_GROUP)
 
-    return [...pages, ...pals]
-  }, [query, data])
+    const mons: Row[] = pokemon
+      .map(mon => ({ kind: 'pokemon' as const, mon, score: score(prettyPokemonName(mon.name), q) }))
+      .filter(r => r.score > 0)
+      .sort((a, b) => b.score - a.score || a.mon.id - b.mon.id)
+      .slice(0, MAX_PER_GROUP)
+
+    return [...pages, ...pals, ...mons]
+  }, [query, data, pokemon])
 
   useEffect(() => { setCursor(0) }, [query])
 
@@ -79,7 +97,8 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
   const go = (row: Row) => {
     onClose()
     if (row.kind === 'page') navigate(row.item.path)
-    else navigate(`/palworld/pal/${row.pal.slug}`)
+    else if (row.kind === 'pal') navigate(`/palworld/pal/${row.pal.slug}`)
+    else navigate(`/pokedex?pokemon=${row.mon.id}`)
   }
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -90,6 +109,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
   }
 
   const firstPalIndex = rows.findIndex(r => r.kind === 'pal')
+  const firstMonIndex = rows.findIndex(r => r.kind === 'pokemon')
 
   return (
     <div
@@ -143,12 +163,13 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
           {rows.map((row, idx) => {
             const active = idx === cursor
             return (
-              <li key={row.kind === 'page' ? row.item.path : `pal-${row.pal.i}`}>
-                {idx === firstPalIndex && firstPalIndex > 0 && (
-                  <div className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                    Pals
-                  </div>
-                )}
+              <li key={
+                row.kind === 'page' ? row.item.path
+                  : row.kind === 'pal' ? `pal-${row.pal.i}`
+                    : `mon-${row.mon.id}`
+              }>
+                {idx === firstPalIndex && firstPalIndex > 0 && <GroupLabel>Pals</GroupLabel>}
+                {idx === firstMonIndex && firstMonIndex > 0 && <GroupLabel>Pokémon</GroupLabel>}
                 <button
                   data-active={active}
                   onMouseEnter={() => setCursor(idx)}
@@ -167,6 +188,31 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
                         <span className="block text-xs text-gray-500 dark:text-gray-400 truncate">
                           {row.item.hint}
                         </span>
+                      </span>
+                    </>
+                  ) : row.kind === 'pokemon' ? (
+                    <>
+                      <img
+                        src={row.mon.sprite}
+                        alt=""
+                        width={30}
+                        height={30}
+                        loading="lazy"
+                        className="shrink-0 [image-rendering:pixelated]"
+                      />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {prettyPokemonName(row.mon.name)}
+                        </span>
+                        <span className="block text-xs text-gray-500 dark:text-gray-400 truncate">
+                          #{String(row.mon.id).padStart(3, '0')} · {row.mon.types.map(prettyPokemonName).join(' / ')}
+                        </span>
+                      </span>
+                      <span className="flex gap-1 shrink-0">
+                        {row.mon.types.map(t => (
+                          <span key={t} className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: TYPE_COLORS[t] ?? '#888' }} />
+                        ))}
                       </span>
                     </>
                   ) : (

@@ -85,3 +85,98 @@
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Tactile interactions for the Pal and Pokemon detail pages.
+
+   The rule everywhere: press states are faster than hover states. A tap should
+   answer instantly (~90ms) while a hover can afford to ease (~200ms), which is
+   what makes a control feel physical rather than laggy.
+   --------------------------------------------------------------------------- */
+
+/* Cards and links that should lift toward the cursor and sink when pressed. */
+.tactile {
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.3, 1),
+              box-shadow 180ms ease,
+              border-color 180ms ease;
+  will-change: transform;
+}
+.tactile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.28);
+}
+.tactile:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: 90ms;
+}
+
+/* Primary buttons: no lift, just a decisive press. */
+.tactile-press {
+  transition: transform 90ms cubic-bezier(0.2, 0.8, 0.3, 1), opacity 150ms ease;
+}
+.tactile-press:active {
+  transform: scale(0.96);
+}
+
+/* The hero portrait reacts a touch more than everything around it. */
+.tactile-art {
+  transition: transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1.1), filter 320ms ease;
+}
+.tactile-art:hover {
+  transform: scale(1.06) rotate(-1.5deg);
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.25));
+}
+
+/* Stat bars fill from zero on mount instead of snapping to width. */
+@keyframes stat-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.stat-fill {
+  transform-origin: left center;
+  animation: stat-fill 620ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+/* Detail sections arrive staggered so the page assembles rather than blinks. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise-in {
+  animation: rise-in 380ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* Placeholder shimmer while PokeAPI is still answering. */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgb(148 163 184 / 0.18);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.22), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+/* None of the above is load-bearing, so drop all of it when asked. */
+@media (prefers-reduced-motion: reduce) {
+  .tactile,
+  .tactile:hover,
+  .tactile:active,
+  .tactile-press:active,
+  .tactile-art:hover {
+    transform: none;
+    transition: none;
+  }
+  .stat-fill,
+  .rise-in,
+  .skeleton::after {
+    animation: none;
+  }
+}

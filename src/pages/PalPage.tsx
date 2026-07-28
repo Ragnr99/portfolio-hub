@@ -49,11 +49,11 @@ export default function PalPage() {
 
   return (
     <Wrap>
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden rise-in">
         <ElementStripe elements={pal.elements} />
         <div className="p-6 sm:p-8 space-y-6">
           <div className="flex items-start gap-5 flex-wrap">
-            <PalPortrait pal={pal} size={112} />
+            <div className="tactile-art"><PalPortrait pal={pal} size={112} /></div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{pal.name}</h1>
@@ -65,7 +65,7 @@ export default function PalPage() {
               </div>
               <SmartLink
                 to={`/palworld/breeder?target=${pal.i}`}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 transition-opacity text-sm font-medium"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 text-sm font-medium tactile-press"
               >
                 <Egg size={16} /> How do I breed {pal.name}?
               </SmartLink>
@@ -137,7 +137,7 @@ function NeighbourLink({ pal, dir }: { pal: Pal; dir: 'prev' | 'next' }) {
   return (
     <SmartLink
       to={`/palworld/pal/${pal.slug}`}
-      className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors ${
+      className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 tactile ${
         dir === 'next' ? 'flex-row-reverse text-right ml-auto' : ''
       }`}
     >
@@ -157,7 +157,7 @@ function Wrap({ children }: { children: React.ReactNode }) {
     <div className="space-y-5 max-w-3xl">
       <SmartLink
         to="/palworld/palpedia"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors tactile-press"
       >
         <ChevronLeft size={16} /> All Pals
       </SmartLink>
@@ -168,7 +168,7 @@ function Wrap({ children }: { children: React.ReactNode }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="rise-in">
       <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">{title}</h2>
       {children}
     </div>

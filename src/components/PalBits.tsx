@@ -76,7 +76,7 @@ export function StatBar({ label, value, max, color }: { label: string; value: nu
       </div>
       <div className="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all"
+          className="h-full rounded-full stat-fill"
           style={{ width: `${Math.min(100, (value / max) * 100)}%`, backgroundColor: color }}
         />
       </div>

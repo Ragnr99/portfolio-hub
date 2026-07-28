@@ -118,7 +118,7 @@ export default function Palpedia() {
           <SmartLink
             key={pal.i}
             to={`/palworld/pal/${pal.slug}`}
-            className="block text-left rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all"
+            className="block text-left rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 tactile"
           >
             <ElementStripe elements={pal.elements} />
             <div className="p-3 space-y-2">

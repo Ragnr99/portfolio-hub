@@ -5,7 +5,12 @@ setlocal
 cd /d "%~dp0"
 
 call npm run build || exit /b 1
-copy /y dist\index.html dist\404.html >nul
+
+rem Writes a real index.html at every route so GitHub Pages returns 200 instead
+rem of falling through to 404.html, and gives each page its own title and
+rem description. Also writes 404.html itself, for genuinely unknown paths.
+call node scripts/prerender.js || exit /b 1
+
 type nul > dist\.nojekyll
 
 if exist "%USERPROFILE%\Desktop\Daybreak.zip" (

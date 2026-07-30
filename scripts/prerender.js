@@ -22,6 +22,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const DIST = path.join(ROOT, 'dist')
 const SITE = 'https://nicholaslubold.com'
+// Pokemon artwork is already public and sized right, so it's referenced rather
+// than mirrored. Pal art has no equivalent, hence public/pal-og.
+const POKE_ART = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork'
 
 // Normalised on read: git checks these files out with CRLF, which silently
 // breaks every regex written against \n.
@@ -66,7 +69,7 @@ function staticMeta() {
   return meta
 }
 
-function inject(html, { title, description, url }) {
+function inject(html, { title, description, url, image, imageSize }) {
   const esc = s => String(s ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   const full = `${esc(title)} | Nicholas Lubold`
@@ -78,6 +81,25 @@ function inject(html, { title, description, url }) {
     .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(description)}$2`)
     .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(description)}$2`)
     .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${SITE}${esc(url)}$2`)
+    .replace(
+      // A square subject wants the small card; the wide default would letterbox it.
+      /<meta name="twitter:card" content="[^"]*"/,
+      image ? '<meta name="twitter:card" content="summary"' : '$&')
+    .replace(
+      /<meta property="og:image" content="[^"]*"[\s\S]*?<meta property="og:image:height" content="[^"]*"\s*\/>/,
+      image
+        // Two og:image tags on purpose: the WebP is a fraction of the size, but
+        // not every unfurler reads WebP, and those that don't fall through to
+        // the site's PNG card rather than showing nothing at all.
+        ? [
+            `<meta property="og:image" content="${esc(image)}" />`,
+            `    <meta property="og:image:width" content="${imageSize}" />`,
+            `    <meta property="og:image:height" content="${imageSize}" />`,
+            `    <meta property="og:image" content="${SITE}/og-card.png" />`,
+          ].join('\n')
+        : '$&')
+    .replace(/(<meta name="twitter:image" content=")[^"]*(")/,
+      image ? `$1${esc(image)}$2` : '$&')
 }
 
 function write(route, html) {
@@ -111,6 +133,8 @@ function main() {
       description: `${pal.name} is a ${el} Pal. HP ${pal.hp}, Attack ${pal.attack}, Defense ${pal.defense}. `
         + `Work suitability, partner skill, drops and every breeding pair.`,
       url: `/palworld/pal/${pal.slug}`,
+      image: `${SITE}/pal-og/${pal.internal.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.webp`,
+      imageSize: 400,
     }))
     count++
   }
@@ -123,6 +147,8 @@ function main() {
       description: `#${String(id).padStart(3, '0')} ${pretty(name)}, a `
         + `${types.map(pretty).join('/')} type. Base stats, abilities, moves and evolutions.`,
       url: `/pokedex/${name}`,
+      image: `${POKE_ART}/${id}.png`,
+      imageSize: 475,
     }))
     count++
   }

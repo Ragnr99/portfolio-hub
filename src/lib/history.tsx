@@ -54,11 +54,17 @@ export function NavStackProvider({ children }: { children: React.ReactNode }) {
 
   const go = useCallback((to: string) => {
     const cur = ref.current
-    const idx = cur.findIndex(p => samePage(p, to))
     const last = cur.length - 1
 
-    if (idx === last && idx >= 0) return          // already here
-    if (idx >= 0) navigate(idx - last)            // loop: rewind, cutting the middle
+    // Matched on the FULL url, query included. Matching on pathname alone broke
+    // "How do I breed X?": /palworld/breeder?target=99 looked like the
+    // /palworld/breeder?target=5 already behind you, so it counted as "already
+    // here" and the navigation was dropped, leaving the previous Pal loaded.
+    // Trail collapsing below still ignores the query, so flipping ?target= on
+    // the page you're already on doesn't stack up history.
+    if (cur[last] === to) return                  // genuinely already here
+    const idx = cur.indexOf(to)
+    if (idx >= 0 && idx < last) navigate(idx - last)  // loop: rewind, cutting the middle
     else navigate(to)
   }, [navigate])
 

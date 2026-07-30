@@ -7,6 +7,10 @@
 // about 1.4MB for the whole roster, and still sharp on a 2x display at the 64px
 // the cards actually render.
 //
+// A second, larger copy goes to public/pal-og for link previews: social
+// crawlers reject anything under about 200px, so the 128px card art can't do
+// double duty.
+//
 // Existing files are skipped, so re-running after a game patch only fetches
 // what's new.
 
@@ -17,10 +21,14 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DATA_FILE = path.join(__dirname, '../public/palworld-data.json')
 const OUT_DIR = path.join(__dirname, '../public/pal-images')
+// Separate, larger copies purely for link previews. Social crawlers reject
+// anything under ~200px, so the 128px card art can't do double duty.
+const OG_DIR = path.join(__dirname, '../public/pal-og')
 
 const WIKI = 'https://palworld.fandom.com/api.php'
 const BATCH = 50
 const WIDTH = 128
+const OG_WIDTH = 400
 
 /** Must stay identical to palImageSlug() in src/hooks/usePalworldData.ts. */
 const slug = internal => internal.toLowerCase().replace(/[^a-z0-9]+/g, '-')
@@ -59,7 +67,11 @@ async function main() {
     seen.set(s, p.internal)
   }
 
-  const todo = pals.filter(p => !fs.existsSync(path.join(OUT_DIR, `${slug(p.internal)}.webp`)))
+  fs.mkdirSync(OG_DIR, { recursive: true })
+  const needs = p => [
+    [OUT_DIR, WIDTH], [OG_DIR, OG_WIDTH],
+  ].some(([dir]) => !fs.existsSync(path.join(dir, `${slug(p.internal)}.webp`)))
+  const todo = pals.filter(needs)
   console.log(`${pals.length} Pals, ${pals.length - todo.length} already downloaded, ${todo.length} to fetch`)
   if (!todo.length) return
 
@@ -75,14 +87,19 @@ async function main() {
     // `base` already ends in /revision/latest. Ask the CDN to resize and
     // re-encode; without the Accept header it hands back the original PNG
     // regardless of ?format=webp.
-    const url = `${base}/scale-to-width-down/${WIDTH}?format=webp`
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'portfolio-hub image build', Accept: 'image/webp,image/*' },
-    })
-    if (!res.ok) { missing.push(`${pal.name} (HTTP ${res.status})`); continue }
-    const buf = Buffer.from(await res.arrayBuffer())
-    fs.writeFileSync(path.join(OUT_DIR, `${slug(pal.internal)}.webp`), buf)
-    ok++
+    let wrote = 0
+    for (const [dir, width] of [[OUT_DIR, WIDTH], [OG_DIR, OG_WIDTH]]) {
+      const file = path.join(dir, `${slug(pal.internal)}.webp`)
+      if (fs.existsSync(file)) { wrote++; continue }
+      const url = `${base}/scale-to-width-down/${width}?format=webp`
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'portfolio-hub image build', Accept: 'image/webp,image/*' },
+      })
+      if (!res.ok) { missing.push(`${pal.name} @${width} (HTTP ${res.status})`); continue }
+      fs.writeFileSync(file, Buffer.from(await res.arrayBuffer()))
+      wrote++
+    }
+    if (wrote) ok++
     if (ok % 40 === 0) console.log(`  ${ok}/${todo.length}`)
   }
 

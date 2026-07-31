@@ -88,14 +88,14 @@ function inject(html, { title, description, url, image, imageSize }) {
     .replace(
       /<meta property="og:image" content="[^"]*"[\s\S]*?<meta property="og:image:height" content="[^"]*"\s*\/>/,
       image
-        // Two og:image tags on purpose: the WebP is a fraction of the size, but
-        // not every unfurler reads WebP, and those that don't fall through to
-        // the site's PNG card rather than showing nothing at all.
+        // Only the subject's own art. There was a second og:image here pointing
+        // at the site card as a fallback for unfurlers that can't read WebP,
+        // but that card is a Daybreak screenshot, so a Jetragon link unfurled
+        // as Daybreak. Showing no image beats showing the wrong project.
         ? [
             `<meta property="og:image" content="${esc(image)}" />`,
             `    <meta property="og:image:width" content="${imageSize}" />`,
             `    <meta property="og:image:height" content="${imageSize}" />`,
-            `    <meta property="og:image" content="${SITE}/og-card.png" />`,
           ].join('\n')
         : '$&')
     .replace(/(<meta name="twitter:image" content=")[^"]*(")/,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, Zap, Joystick, Ghost, Grid3x3, Square, Bird } from 'lucide-react'
+import { ArrowLeft, Layers, Zap, Joystick, Ghost, Grid3x3, Square, Bird } from 'lucide-react'
+import DeckfallGame from '../components/DeckfallGame'
 import AsteroidsGame from '../components/AsteroidsGame'
 import SnakeGame from '../components/SnakeGame'
 import PacManGame from '../components/PacManGame'
@@ -8,11 +9,16 @@ import BreakoutGame from '../components/BreakoutGame'
 import FlappyGame from '../components/FlappyGame'
 import { getHighScore } from '../utils/highscores'
 
-type GameType = 'tetris' | 'breakout' | 'flappy' | 'asteroids' | 'snake' | 'pacman' | null
+type GameType = 'deckfall' | 'tetris' | 'breakout' | 'flappy' | 'asteroids' | 'snake' | 'pacman' | null
 
 const PIXEL = { fontFamily: '"Press Start 2P", monospace' }
 
 const GAMES = [
+  {
+    id: 'deckfall' as GameType, name: 'Deckfall', icon: Layers,
+    tagline: 'Read the intent. Build the deck.',
+    glow: '#f472b6', component: DeckfallGame,
+  },
   {
     id: 'tetris' as GameType, name: 'Tetris', icon: Grid3x3,
     tagline: 'Stack. Clear. Repeat.',

@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Palworld Interactive Map</title>
-    <script type="module" crossorigin src="./assets/index-B_-SdCqS.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BZMqbxs3.css">
+    <script type="module" crossorigin src="./assets/index-B-N0H6pT.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Cf54E7-y.css">
   </head>
   <body>
     <div id="app">
@@ -60,9 +60,13 @@
           </button>
           <div class="acc-body">
             <div class="acc-inner">
-              <div class="bulk">
-                <button id="layers-all" type="button">Show all</button>
-                <button id="layers-none" type="button">Hide all</button>
+              <div class="cat-head master-head">
+                <span class="cat-expand static">
+                  <span class="cat-chev spacer"></span>
+                  <span class="layer-label">All layers</span>
+                  <span class="layer-count" id="layers-master-count"></span>
+                </span>
+                <span class="switch"><input type="checkbox" id="layers-master" /><span class="track"></span></span>
               </div>
               <div id="layer-controls"></div>
             </div>

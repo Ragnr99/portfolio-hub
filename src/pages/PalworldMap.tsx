@@ -52,10 +52,22 @@ export default function PalworldMap() {
         />
       </div>
 
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        Toggle layers on the left, pick a Pal to see its day/night spawn points, search by name, or filter by base game
-        vs DLC. Tip: use <span className="font-medium">Open full screen</span> for more room.
-      </p>
+      <div className="text-sm text-gray-500 dark:text-gray-400 space-y-2">
+        <p>
+          Switch between Palpagos and the World Tree at the top left, toggle layers, pick a Pal to see its day/night
+          spawn points, or filter by base game vs DLC. Tip: use{' '}
+          <span className="font-medium">Open full screen</span> for more room.
+        </p>
+        <p>
+          Map imagery and all marker data come from{' '}
+          <a href="https://paldb.cc" target="_blank" rel="noopener noreferrer"
+             className="underline hover:text-gray-900 dark:hover:text-white">paldb.cc</a>;
+          the front end is mine. Pal art from the{' '}
+          <a href="https://palworld.fandom.com" target="_blank" rel="noopener noreferrer"
+             className="underline hover:text-gray-900 dark:hover:text-white">Palworld Wiki</a>.
+          Unofficial fan project, not affiliated with Pocketpair.
+        </p>
+      </div>
     </div>
   )
 }

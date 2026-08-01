@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Palworld Interactive Map</title>
-    <script type="module" crossorigin src="./assets/index-B-N0H6pT.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Cf54E7-y.css">
+    <script type="module" crossorigin src="./assets/index-Cx102i3l.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CTXO0Gse.css">
   </head>
   <body>
     <div id="app">
@@ -14,7 +14,16 @@
       </button>
       <div id="backdrop" hidden></div>
       <aside id="sidebar">
-        <h1>Palpagos Map</h1>
+        <h1>Palworld Map</h1>
+
+        <div class="seg" id="map-seg">
+          <button data-map="palpagos" class="on" type="button">Palpagos</button>
+          <button data-map="tree" type="button">World Tree</button>
+        </div>
+        <p class="hint" id="region-note" hidden>
+          Marker and spawn data for the World Tree hasn't been published yet, so
+          only the terrain is shown here.
+        </p>
 
         <input id="search" type="search" placeholder="Search markers (name)…" autocomplete="off" />
 
@@ -74,6 +83,14 @@
         </section>
 
         <div id="coord-readout">Hover the map for coords</div>
+
+        <p class="credit">
+          Map imagery and marker data from
+          <a href="https://paldb.cc" target="_blank" rel="noopener">paldb.cc</a>.
+          Pal art from the
+          <a href="https://palworld.fandom.com" target="_blank" rel="noopener">Palworld Wiki</a>.
+          Unofficial fan project.
+        </p>
       </aside>
       <div id="map"></div>
     </div>

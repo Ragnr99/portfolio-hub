@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { Egg, ChevronLeft } from 'lucide-react'
+import { Egg } from 'lucide-react'
 import {
   usePalworldData, WEAK_TO, STRONG_AGAINST, type Pal,
 } from '../hooks/usePalworldData'
@@ -8,6 +8,7 @@ import {
   ElementBadge, ElementStripe, StatBar, WorkGrid, RarityBadge, DexNumber, PalPortrait,
 } from '../components/PalBits'
 import { SmartLink } from '../lib/history'
+import BackLink from '../components/BackLink'
 
 export default function PalPage() {
   const { slug = '' } = useParams()
@@ -155,12 +156,7 @@ function NeighbourLink({ pal, dir }: { pal: Pal; dir: 'prev' | 'next' }) {
 function Wrap({ children }: { children: React.ReactNode }) {
   return (
     <div className="space-y-5 max-w-3xl">
-      <SmartLink
-        to="/palworld/palpedia"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors tactile-press"
-      >
-        <ChevronLeft size={16} /> All Pals
-      </SmartLink>
+      <BackLink fallback="/palworld/palpedia" fallbackLabel="All Pals" />
       {children}
     </div>
   )

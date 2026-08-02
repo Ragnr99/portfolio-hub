@@ -21,10 +21,12 @@ import { Link, useLocation, useNavigate, type LinkProps } from 'react-router-dom
 interface NavStack {
   /** Where you actually are, loops already collapsed. */
   trail: string[]
+  /** The entry you'd land on going back, query string intact, or null at the root. */
+  previous: string | null
   go: (to: string) => void
 }
 
-const Ctx = createContext<NavStack>({ trail: [], go: () => {} })
+const Ctx = createContext<NavStack>({ trail: [], previous: null, go: () => {} })
 
 /** Compare routes only; ?pal=42 is the same page as ?pal=7. */
 const samePage = (a: string, b: string) => a.split('?')[0] === b.split('?')[0]
@@ -68,7 +70,8 @@ export function NavStackProvider({ children }: { children: React.ReactNode }) {
     else navigate(to)
   }, [navigate])
 
-  return <Ctx.Provider value={{ trail, go }}>{children}</Ctx.Provider>
+  const previous = trail.length > 1 ? trail[trail.length - 2] : null
+  return <Ctx.Provider value={{ trail, previous, go }}>{children}</Ctx.Provider>
 }
 
 export const useNavStack = () => useContext(Ctx)

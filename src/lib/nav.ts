@@ -68,6 +68,16 @@ export const SEARCHABLE: NavItem[] = [
 const BY_PATH = new Map(SEARCHABLE.map(i => [i.path, i]))
 
 /**
+ * Human name for a url, query string and all. Used by the "back" link on detail
+ * pages so it can say where it's actually returning you to rather than guessing
+ * at a parent: reaching a Pal from the Breeder should go back to the Breeder,
+ * with your search still in it.
+ */
+export function labelFor(url: string): string | null {
+  return BY_PATH.get(url.split('?')[0])?.label ?? null
+}
+
+/**
  * Which nav item owns the current URL. Everything below the top level lives
  * under Work, so a project page highlights Work rather than nothing.
  */

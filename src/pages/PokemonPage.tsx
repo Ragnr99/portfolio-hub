@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { usePokemonIndex, prettyPokemonName, type PokemonEntry } from '../hooks/usePokemonIndex'
 import { TYPE_COLORS } from '../utils/pokemonConstants'
 import { SmartLink } from '../lib/history'
+import BackLink from '../components/BackLink'
 import { fetchEvolutions, toLearnset, type Evolution, type Learnset } from '../lib/pokeapi'
 
 /**
@@ -320,12 +321,7 @@ function NeighbourLink({ mon, dir }: { mon: PokemonEntry; dir: 'prev' | 'next' }
 function Wrap({ children }: { children: React.ReactNode }) {
   return (
     <div className="space-y-5 max-w-3xl">
-      <SmartLink
-        to="/pokedex"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors tactile-press"
-      >
-        <ChevronLeft size={16} /> All Pokémon
-      </SmartLink>
+      <BackLink fallback="/pokedex" fallbackLabel="All Pokémon" />
       {children}
     </div>
   )

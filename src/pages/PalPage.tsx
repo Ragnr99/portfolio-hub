@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { Egg } from 'lucide-react'
+import { Egg, MapPin } from 'lucide-react'
 import {
   usePalworldData, WEAK_TO, STRONG_AGAINST, type Pal,
 } from '../hooks/usePalworldData'
@@ -9,10 +9,12 @@ import {
 } from '../components/PalBits'
 import { SmartLink } from '../lib/history'
 import BackLink from '../components/BackLink'
+import { useSpawnIndex } from '../hooks/useSpawnIndex'
 
 export default function PalPage() {
   const { slug = '' } = useParams()
   const { data, loading, error } = usePalworldData()
+  const spawnNames = useSpawnIndex()
 
   const pal = useMemo(
     () => data?.pals.find(p => p.slug === slug) ?? null,
@@ -64,12 +66,24 @@ export default function PalPage() {
               <div className="flex gap-1.5 mt-2 flex-wrap">
                 {pal.elements.map(el => <ElementBadge key={el} element={el} />)}
               </div>
-              <SmartLink
-                to={`/palworld/breeder?target=${pal.i}`}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 text-sm font-medium tactile-press"
-              >
-                <Egg size={16} /> How do I breed {pal.name}?
-              </SmartLink>
+              <div className="mt-4 flex gap-2 flex-wrap">
+                <SmartLink
+                  to={`/palworld/breeder?target=${pal.i}`}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 text-sm font-medium tactile-press"
+                >
+                  <Egg size={16} /> How do I breed {pal.name}?
+                </SmartLink>
+                {/* Only offered when the map has spawns for it: bosses and some
+                    variants have none, and the button would lead nowhere. */}
+                {spawnNames?.has(pal.name) && (
+                  <SmartLink
+                    to={`/palworld/map?pal=${encodeURIComponent(pal.name)}`}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium tactile-press"
+                  >
+                    <MapPin size={16} /> Where to find
+                  </SmartLink>
+                )}
+              </div>
             </div>
           </div>
 

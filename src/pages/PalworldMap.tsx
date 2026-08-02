@@ -1,4 +1,5 @@
 
+import { useSearchParams } from 'react-router-dom'
 import { ExternalLink, Github, Map } from 'lucide-react'
 
 // The interactive map is a self-contained Leaflet app, built from the
@@ -6,9 +7,15 @@ import { ExternalLink, Github, Map } from 'lucide-react'
 // different path from this /palworld/map route, so a direct load or refresh
 // doesn't hit the static map index instead of this page). It runs live inside
 // the iframe so the demo is real, not a screenshot.
-const MAP_URL = `${import.meta.env.BASE_URL}palworld-app/index.html`
+const MAP_BASE = `${import.meta.env.BASE_URL}palworld-app/index.html`
 
 export default function PalworldMap() {
+  // ?pal= arrives from a Pal page's "Where to find" button and is handed
+  // straight to the embedded app, which preselects that Pal's spawns.
+  const [params] = useSearchParams()
+  const pal = params.get('pal')
+  const MAP_URL = pal ? `${MAP_BASE}?pal=${encodeURIComponent(pal)}` : MAP_BASE
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">

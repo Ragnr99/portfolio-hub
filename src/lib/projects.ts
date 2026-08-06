@@ -12,7 +12,7 @@
  */
 
 import {
-  Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg,
+  Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg, Network,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -49,6 +49,13 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     id: 'daybreak',
+    tools: [
+      {
+        path: '/daybreak/clustering', label: 'Finding blindspots without AI', icon: Network,
+        hint: 'How Daybreak groups 1,500 headlines into stories in 22 milliseconds',
+        keywords: ['clustering', 'tf-idf', 'union find', 'algorithm', 'write-up', 'how it works'],
+      },
+    ],
     keywords: ['news','reader','bias','blindspot','rss','spectrum'],
     featured: true,
     title: 'Daybreak',

@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import { NavStackProvider } from './lib/history'
 import Home from './pages/Home'
 import Daybreak from './pages/Daybreak'
+import Clustering from './pages/Clustering'
 import Projects from './pages/Projects'
 import Games from './pages/Games'
 import Pokedex from './pages/Pokedex'
@@ -24,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/daybreak" element={<Daybreak />} />
+            <Route path="/daybreak/clustering" element={<Clustering />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/games" element={<Games />} />
             <Route path="/pokedex" element={<Pokedex />} />

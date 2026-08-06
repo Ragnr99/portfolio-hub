@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { RefreshCw, Sunrise } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Network, RefreshCw, Sunrise } from 'lucide-react'
 
 // The Daybreak news reader, embedded from its local web server.
 // Start it with:  cd C:\Users\Nicholas\PycharmProjects\daily-news && py -3.10 webapi.py
@@ -106,10 +107,10 @@ export default function Daybreak() {
           A calm, private desktop news reader. ~800 articles a day from ~45 sources across
           the political spectrum, every story color-coded by lean, full article text in-app,
           blindspot detection, and a weekly media-diet balance score. No ads, no account,
-          no tracking — everything runs on-device.
+          no tracking. Everything runs on-device.
         </p>
         <p className="text-gray-500 dark:text-gray-400">
-          Windows only, free, no install — unzip and run. If Windows shows a SmartScreen
+          Windows only, free, no install. Unzip and run. If Windows shows a SmartScreen
           warning, click "More info" then "Run anyway" (it's unsigned, not unsafe).
         </p>
         <div className="flex justify-center gap-4">
@@ -129,6 +130,14 @@ export default function Daybreak() {
             View the code
           </a>
         </div>
+        <Link
+          to="/daybreak/clustering"
+          className="inline-flex items-center gap-2 text-orange-600 dark:text-orange-400 font-medium hover:underline"
+        >
+          <Network size={18} />
+          How it finds blindspots without AI
+          <ArrowRight size={16} />
+        </Link>
         </div>
         <Gallery />
       </div>

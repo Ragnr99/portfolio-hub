@@ -359,6 +359,12 @@ function TargetMode({
  * every partner that takes that branch, because the cheapest route on paper is
  * the wrong one if you already own the parents for another.
  */
+/**
+ * A chain this long reads as a bug, so past this many steps the page explains
+ * where the length actually comes from instead of just printing a number.
+ */
+const LONG_CHAIN = 4
+
 function PathMode({
   data, from, to, setFrom, setTo, onSwap,
 }: {
@@ -378,6 +384,25 @@ function PathMode({
     () => (from && to ? planBreedingPath(data, from, to, routePicks) : null),
     [data, from, to, routePicks],
   )
+
+  /**
+   * Where a long chain's length comes from, worked out only when there is one
+   * to explain. It's never a long climb - it's a narrow funnel: the low end of
+   * the roster has very few ways in, so a handful of species bottleneck every
+   * route. The trip back is usually far shorter, and usually what you wanted.
+   */
+  const why = useMemo(() => {
+    if (!from || !to || plan?.kind !== 'ok' || plan.steps.length < LONG_CHAIN) return null
+    const pairs = data.parentsOf(to.i)
+    const back = planBreedingPath(data, to, from)
+    return {
+      pairs: pairs.length,
+      needsItself: pairs.length > 0 && pairs.every(([a, b]) => a.i === to.i || b.i === to.i),
+      reverse: back.kind === 'ok' && back.steps.length < plan.steps.length
+        ? back.steps.length
+        : null,
+    }
+  }, [data, from, to, plan])
 
   // Changing a step invalidates every later choice, so drop them.
   const chooseRoute = (step: number, child: number) => {
@@ -439,6 +464,29 @@ function PathMode({
             </p>
             <ChainStrip from={from} steps={plan.steps} />
           </div>
+
+          {why && (
+            <Note tone="info" title={`Why ${plan.steps.length} steps and not fewer`}>
+              Only <strong>{why.pairs}</strong> parent {why.pairs === 1 ? 'pair' : 'pairs'} in the
+              whole table {why.pairs === 1 ? 'produces' : 'produce'} {to.name}
+              {why.needsItself && <>, and every one of them already needs a {to.name}</>}. That
+              bottleneck is the whole reason for the length: it isn't a long climb, it's a narrow
+              funnel that every route has to squeeze through. This is the shortest chain that
+              exists, not just the shortest one found.
+              {why.reverse !== null && (
+                <>
+                  {' '}Going the other way is far cheaper. {to.name} onto {from.name} takes{' '}
+                  <strong>{why.reverse} {why.reverse === 1 ? 'step' : 'steps'}</strong>.{' '}
+                  <button
+                    onClick={onSwap}
+                    className="underline underline-offset-2 font-medium hover:no-underline"
+                  >
+                    Swap direction
+                  </button>
+                </>
+              )}
+            </Note>
+          )}
 
           {plan.steps.map((step, i) => (
             <StepCard

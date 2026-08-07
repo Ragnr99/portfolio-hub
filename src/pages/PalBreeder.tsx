@@ -1,49 +1,64 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info, X } from 'lucide-react'
+import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info, X, ChevronDown, Route } from 'lucide-react'
 import { usePalworldData, type Pal, type PalworldData } from '../hooks/usePalworldData'
+import { planBreedingPath, type PathStep, type StepOption } from '../lib/breedingPath'
 import { SmartLink } from '../lib/history'
 import { ElementBadge, ElementStripe, RarityBadge, DexNumber, PalPortrait } from '../components/PalBits'
 
 /**
- * Three questions you can ask the breeding table:
+ * Four questions you can ask the breeding table:
  *
  *   pair     these two -> what?          checking a specific cross
  *   partner  this one + everything else  what is this Pal good for?
  *   target   what makes this?            chasing something specific
+ *   path     A -> ... -> B               moving passives onto another species
  *
- * All three read the same precomputed 44,850-pair table, so they always agree.
+ * All four read the same precomputed 44,850-pair table, so they always agree.
  */
-type Mode = 'pair' | 'partner' | 'target'
+type Mode = 'pair' | 'partner' | 'target' | 'path'
 
 const MODES: Array<{ id: Mode; label: string; blurb: string }> = [
   { id: 'pair', label: 'Check a pair', blurb: 'Pick two parents and see the child.' },
   { id: 'partner', label: 'One parent', blurb: 'Pick one parent and see every partner and what each pairing makes.' },
   { id: 'target', label: 'Find parents', blurb: 'Pick what you want and see every pair that produces it.' },
+  { id: 'path', label: 'Move passives', blurb: 'Got a perfect Lamball? See the shortest chain that walks its passives onto anything else.' },
 ]
 
 export default function PalBreeder() {
   const { data, loading, error } = usePalworldData()
   const [params, setParams] = useSearchParams()
   const [mode, setMode] = useState<Mode>(
-    params.get('parent') ? 'partner' : params.get('target') ? 'target' : 'pair')
+    params.get('from') || params.get('to') ? 'path'
+      : params.get('parent') ? 'partner'
+        : params.get('target') ? 'target' : 'pair')
   const [parentA, setParentA] = useState<Pal | null>(null)
   const [parentB, setParentB] = useState<Pal | null>(null)
   const [single, setSingle] = useState<Pal | null>(null)
   const [target, setTarget] = useState<Pal | null>(null)
+  const [carrier, setCarrier] = useState<Pal | null>(null)
+  const [goal, setGoal] = useState<Pal | null>(null)
 
-  // Deep links: ?target= from a Pal page, ?parent= from the one-parent view.
+  // Deep links: ?target= from a Pal page, ?parent= from the one-parent view,
+  // ?from=&to= for a whole passive-transfer route.
   useEffect(() => {
     if (!data) return
-    const t = params.get('target')
-    if (t !== null) {
-      const pal = data.all[Number(t)]
-      if (pal && !pal.hidden) { setTarget(pal); setMode('target') }
+    const usable = (raw: string | null) => {
+      if (raw === null) return null
+      const pal = data.all[Number(raw)]
+      return pal && !pal.hidden ? pal : null
     }
-    const p = params.get('parent')
-    if (p !== null) {
-      const pal = data.all[Number(p)]
-      if (pal && !pal.hidden) { setSingle(pal); setMode('partner') }
+    const t = usable(params.get('target'))
+    if (t) { setTarget(t); setMode('target') }
+    const p = usable(params.get('parent'))
+    if (p) { setSingle(p); setMode('partner') }
+
+    const f = usable(params.get('from'))
+    const g = usable(params.get('to'))
+    if (f || g) {
+      if (f) setCarrier(f)
+      if (g) setGoal(g)
+      setMode('path')
     }
   }, [data, params])
 
@@ -60,12 +75,33 @@ export default function PalBreeder() {
     setParams(pal ? { [key]: String(pal.i) } : {}, { replace: true })
   }
 
+  // Both ends of a route live in the URL together, so a plan stays shareable.
+  const setEnds = (next: { from: Pal | null; to: Pal | null }) => {
+    setCarrier(next.from)
+    setGoal(next.to)
+    setParams(
+      Object.fromEntries(
+        (['from', 'to'] as const).flatMap(k => (next[k] ? [[k, String(next[k]!.i)]] : [])),
+      ),
+      { replace: true },
+    )
+  }
+  const pickEnd = (key: 'from' | 'to') => (pal: Pal | null) =>
+    setEnds({ from: carrier, to: goal, [key]: pal } as { from: Pal | null; to: Pal | null })
+
   return shell(
     mode === 'pair'
       ? <PairMode data={data} a={parentA} b={parentB} setA={setParentA} setB={setParentB} />
       : mode === 'partner'
         ? <PartnerMode data={data} pal={single} setPal={pick('parent', setSingle)} />
-        : <TargetMode data={data} target={target} setTarget={pick('target', setTarget)} />,
+        : mode === 'target'
+          ? <TargetMode data={data} target={target} setTarget={pick('target', setTarget)} />
+          : <PathMode
+              data={data}
+              from={carrier} to={goal}
+              setFrom={pickEnd('from')} setTo={pickEnd('to')}
+              onSwap={() => setEnds({ from: goal, to: carrier })}
+            />,
   )
 }
 
@@ -309,6 +345,294 @@ function TargetMode({
           {shown.length === 0 && <Empty>No parent pair matches "{filter}".</Empty>}
         </>
       )}
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------- path mode */
+
+/**
+ * "I have a perfect Lamball, I want those passives on a Jormuntide Ignis."
+ *
+ * The chain itself comes from planBreedingPath; everything here is about
+ * picking your way through it. Each step offers every equally-short branch and
+ * every partner that takes that branch, because the cheapest route on paper is
+ * the wrong one if you already own the parents for another.
+ */
+function PathMode({
+  data, from, to, setFrom, setTo, onSwap,
+}: {
+  data: PalworldData
+  from: Pal | null; to: Pal | null
+  setFrom: (p: Pal | null) => void; setTo: (p: Pal | null) => void
+  onSwap: () => void
+}) {
+  /** Species to breed into at step k, when the default route isn't wanted. */
+  const [routePicks, setRoutePicks] = useState<number[]>([])
+  /** Partner to use at step k. Defaults to the easiest one to obtain. */
+  const [partnerPicks, setPartnerPicks] = useState<number[]>([])
+
+  useEffect(() => { setRoutePicks([]); setPartnerPicks([]) }, [from, to])
+
+  const plan = useMemo(
+    () => (from && to ? planBreedingPath(data, from, to, routePicks) : null),
+    [data, from, to, routePicks],
+  )
+
+  // Changing a step invalidates every later choice, so drop them.
+  const chooseRoute = (step: number, child: number) => {
+    setRoutePicks(prev => { const next = prev.slice(0, step); next[step] = child; return next })
+    setPartnerPicks(prev => prev.slice(0, step))
+  }
+  const choosePartner = (step: number, partner: number) => {
+    setPartnerPicks(prev => { const next = prev.slice(); next[step] = partner; return next })
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <PalPicker label="I have the passives on…" pals={data.pals} value={from} onChange={setFrom} />
+        <PalPicker label="I want them on…" pals={data.pals} value={to} onChange={setTo} />
+      </div>
+
+      {(from || to) && (
+        <button onClick={onSwap} className={GHOST_BTN}>
+          <Shuffle size={14} /> Swap direction
+        </button>
+      )}
+
+      {(!from || !to) && (
+        <Empty>Pick the Pal carrying the passives and the Pal you want them on.</Empty>
+      )}
+
+      {plan?.kind === 'same' && from && (
+        <Note tone="info" title={`${from.name} is already what you want`}>
+          Breed it with another {from.name} and the child keeps the passives. Two of the same species
+          always breed true, so nothing else in the chain can go wrong.
+        </Note>
+      )}
+
+      {plan?.kind === 'unreachable' && to && (
+        <Note tone="warn" title={`Passives can't be bred into ${to.name}`}>
+          {plan.reason === 'self-only' ? (
+            <>
+              {to.name} only comes from two {to.name}, so no other lineage ever reaches it. Nothing
+              you breed from {from?.name} can turn into one. You'll have to catch them and breed
+              those together, which limits you to the passives the wild ones happen to roll.
+            </>
+          ) : plan.reason === 'no-parents' ? (
+            <>Nothing in the breeding table produces {to.name} at all. It's catch-only.</>
+          ) : (
+            <>No lineage runs from {from?.name} to {to.name}.</>
+          )}
+        </Note>
+      )}
+
+      {plan?.kind === 'ok' && from && to && (
+        <>
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5 space-y-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              <strong className="text-gray-900 dark:text-white">
+                {plan.steps.length} {plan.steps.length === 1 ? 'step' : 'steps'}
+              </strong>{' '}
+              from {from.name} to {to.name}. That's the shortest any route gets.
+            </p>
+            <ChainStrip from={from} steps={plan.steps} />
+          </div>
+
+          {plan.steps.map((step, i) => (
+            <StepCard
+              key={`${i}-${step.from.i}`}
+              data={data}
+              index={i}
+              total={plan.steps.length}
+              step={step}
+              partnerPick={partnerPicks[i]}
+              onRoute={child => chooseRoute(i, child)}
+              onPartner={partner => choosePartner(i, partner)}
+            />
+          ))}
+
+          <Note tone="info" title="How the passives actually carry">
+            The child draws its passives from the pool both parents bring, so the carrier has to be
+            one of the two parents at every step. It's a roll each time, not a guarantee: hatch until
+            you get a child holding the ones you want, then use that child for the next step. Give
+            the partner clean or matching passives where you can, and remember each pair still needs
+            one male and one female.
+          </Note>
+        </>
+      )}
+    </div>
+  )
+}
+
+/** from → mid → mid → target, at a glance. */
+function ChainStrip({ from, steps }: { from: Pal; steps: PathStep[] }) {
+  const chain = [from, ...steps.map(s => s.chosen.child)]
+  return (
+    <ol className="flex items-center gap-1.5 flex-wrap">
+      {chain.map((pal, i) => (
+        <li key={`${i}-${pal.i}`} className="flex items-center gap-1.5">
+          {i > 0 && <ArrowRight size={14} className="text-gray-400 shrink-0" />}
+          <SmartLink
+            to={`/palworld/pal/${pal.slug}`}
+            className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-colors ${
+              i === chain.length - 1
+                ? 'border-indigo-300 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}
+          >
+            <PalPortrait pal={pal} size={22} />
+            <span className="text-xs font-medium text-gray-900 dark:text-white">{pal.name}</span>
+          </SmartLink>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+function StepCard({
+  data, index, total, step, partnerPick, onRoute, onPartner,
+}: {
+  data: PalworldData
+  index: number
+  total: number
+  step: PathStep
+  partnerPick: number | undefined
+  onRoute: (child: number) => void
+  onPartner: (partner: number) => void
+}) {
+  const { partners } = step.chosen
+  const partner = partners.find(p => p.i === partnerPick) ?? partners[0]
+  const others = step.options.filter(o => o.child.i !== step.chosen.child.i)
+
+  // The single pair in the game where it matters which parent is the mother.
+  const genderPair = data.genderPairs.find(g =>
+    (g.a === step.from.i && g.b === partner.i) || (g.a === partner.i && g.b === step.from.i))
+
+  return (
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+      <header className="flex items-center gap-3 flex-wrap px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60">
+        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+          Step {index + 1} of {total}
+        </span>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Breed the {step.from.name} with a {partner.name}
+          {index === total - 1 && <> — that's your {step.chosen.child.name}</>}
+        </p>
+      </header>
+
+      <div className="p-4 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <MiniPal pal={step.from} />
+          <span className="text-gray-400">+</span>
+          <MiniPal pal={partner} />
+          <ArrowRight size={18} className="text-gray-400 shrink-0" />
+          <MiniPal pal={step.chosen.child} />
+        </div>
+
+        {genderPair && (
+          <p className="flex items-start gap-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">
+            <Info size={15} className="mt-0.5 shrink-0" />
+            This is the one pair whose result depends on which parent is female:{' '}
+            {data.all[genderPair.a].name} has to be the mother for {data.all[genderPair.child].name}.
+          </p>
+        )}
+
+        {partners.length > 1 && (
+          <Disclosure summary={`${partners.length} partners give the same result — pick one you own`}>
+            <PalChoices
+              pals={partners}
+              selected={partner.i}
+              onPick={onPartner}
+              caption={p => <RarityBadge rarity={p.rarity} />}
+            />
+          </Disclosure>
+        )}
+
+        {others.length > 0 && (
+          <Disclosure summary={`${others.length} other ${others.length === 1 ? 'route is' : 'routes are'} just as short`}>
+            <PalChoices
+              pals={others.map(o => o.child)}
+              selected={step.chosen.child.i}
+              onPick={onRoute}
+              caption={(_, i) => <PartnerHint option={others[i]} />}
+            />
+          </Disclosure>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function PartnerHint({ option }: { option: StepOption }) {
+  const [first] = option.partners
+  return (
+    <span className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
+      via {first.name}
+      {option.partners.length > 1 && ` +${option.partners.length - 1}`}
+    </span>
+  )
+}
+
+/** Wrapped grid of selectable Pals, used for both partner and route choices. */
+function PalChoices({ pals, selected, onPick, caption }: {
+  pals: Pal[]
+  selected: number
+  onPick: (i: number) => void
+  caption: (pal: Pal, index: number) => React.ReactNode
+}) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {pals.map((pal, i) => (
+        <button
+          key={pal.i}
+          onClick={() => onPick(pal.i)}
+          aria-pressed={pal.i === selected}
+          className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 min-h-[44px] text-left transition-colors ${
+            pal.i === selected
+              ? 'border-indigo-400 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30'
+              : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+          }`}
+        >
+          <PalPortrait pal={pal} size={28} />
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-semibold text-gray-900 dark:text-white truncate">
+              {pal.name}
+            </span>
+            {caption(pal, i)}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function Disclosure({ summary, children }: { summary: string; children: React.ReactNode }) {
+  return (
+    <details className="group">
+      <summary className="flex items-center gap-1.5 cursor-pointer list-none text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 min-h-[36px]">
+        <ChevronDown size={15} className="transition-transform group-open:rotate-180" />
+        {summary}
+      </summary>
+      <div className="mt-2">{children}</div>
+    </details>
+  )
+}
+
+function Note({ tone, title, children }: {
+  tone: 'info' | 'warn'; title: string; children: React.ReactNode
+}) {
+  const skin = tone === 'warn'
+    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300'
+    : 'bg-gray-50 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
+  return (
+    <div className={`rounded-xl border p-4 text-sm ${skin}`}>
+      <p className="flex items-center gap-1.5 font-semibold">
+        {tone === 'warn' ? <Info size={15} /> : <Route size={15} />}
+        {title}
+      </p>
+      <p className="mt-1.5 leading-relaxed">{children}</p>
     </div>
   )
 }

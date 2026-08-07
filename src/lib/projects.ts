@@ -12,7 +12,7 @@
  */
 
 import {
-  Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg, Network,
+  Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg, Network, Sparkles,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -117,6 +117,11 @@ export const PROJECTS: Project[] = [
         keywords: ['breed', 'egg', 'combo', 'child', 'parents'],
       },
       {
+        path: '/palworld/passives', label: 'Passive Dex', icon: Sparkles,
+        hint: 'All 115 passives, and what any four add up to',
+        keywords: ['passive', 'skill', 'trait', 'legend', 'demon god', 'buff', 'debuff', 'theorycraft', 'build', 'loadout'],
+      },
+      {
         path: '/palworld/map', label: 'Interactive Map', icon: Map,
         hint: 'Spawns, chests, dungeons and fast travel',
         keywords: ['spawn', 'chest', 'dungeon', 'location', 'effigy'],
@@ -125,9 +130,9 @@ export const PROJECTS: Project[] = [
     keywords: ['pal','palworld','breeding','dex','map','spawn'],
     featured: true,
     title: 'Palworld Tools',
-    description: 'A Palpedia, a breeding calculator, and an interactive map',
+    description: 'A Palpedia, a breeding calculator, a passive-skill workbench, and an interactive map',
     longDescription:
-      'Three tools over the game\'s own data. The Palpedia covers all 288 Pals with combat stats, work suitability, partner skills, drops and type matchups. The breeder works both directions: two parents to a child, or a target Pal to every parent pair that makes it. It ships the game\'s entire 44,850-pair breeding table rather than a formula, because the widely repeated "average the two CombiRanks" rule only reproduces about 69% of real results. The map is a Leaflet build of the Palpagos Islands with ~13,400 markers across 13 toggleable layers, per-Pal day/night spawn clouds, and a coordinate transform reverse-engineered from the game files. There is also a desktop overlay that pins the element chart over the game and hides itself whenever a menu is open.',
+      'Four tools over the game\'s own data. The Palpedia covers all 288 Pals with combat stats, work suitability, partner skills, drops and type matchups. The breeder works both directions: two parents to a child, or a target Pal to every parent pair that makes it. It ships the game\'s entire 44,850-pair breeding table rather than a formula, because the widely repeated "average the two CombiRanks" rule only reproduces about 69% of real results. The Passive Dex catalogues all 115 passive skills in 1.0 and stacks any four of them into one set of totals, with every number parsed out of the game\'s own descriptions by a build script that fails rather than guess. The map is a Leaflet build of the Palpagos Islands with ~13,400 markers across 13 toggleable layers, per-Pal day/night spawn clouds, and a coordinate transform reverse-engineered from the game files. There is also a desktop overlay that pins the element chart over the game and hides itself whenever a menu is open.',
     tags: ['React', 'TypeScript', 'Leaflet', 'Datamining', 'Python'],
     icon: Map,
     accent: 'from-green-500 via-lime-400 to-emerald-500',

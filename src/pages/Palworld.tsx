@@ -6,6 +6,7 @@ import { PROJECTS } from '../lib/projects'
 const TOOL_TINTS = [
   'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300',
   'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300',
+  'bg-fuchsia-100 dark:bg-fuchsia-900/40 text-fuchsia-600 dark:text-fuchsia-300',
   'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-300',
 ]
 

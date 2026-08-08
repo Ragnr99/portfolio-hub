@@ -21,6 +21,7 @@ import { usePalworldPassives } from '../hooks/usePalworldPassives'
 import { itemIndex } from '../lib/drops'
 import { PROJECTS } from '../lib/projects'
 import { PalPortrait } from '../components/PalBits'
+import PalworldFinder from '../components/PalworldFinder'
 
 const TOOLS = PROJECTS.find(p => p.id === 'palworld-tools')?.tools ?? []
 
@@ -46,6 +47,10 @@ export default function Palworld() {
   return (
     <div className="space-y-10">
       <Hero data={data} loading={loading} />
+
+      {/* Directly under the hero on purpose: arriving knowing a Pal or an item
+          is the common case, and picking a tool first is the slow path. */}
+      {data && <PalworldFinder data={data} passives={passives} />}
 
       <StatRow
         stats={[

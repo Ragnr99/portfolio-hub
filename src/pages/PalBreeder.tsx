@@ -1,28 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info, X, ChevronDown, Route } from 'lucide-react'
+import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info, X, ChevronDown, Route, Sparkles } from 'lucide-react'
 import { usePalworldData, type Pal, type PalworldData } from '../hooks/usePalworldData'
+import { usePalBox } from '../hooks/usePalBox'
 import { planBreedingPath, type PathStep, type StepOption } from '../lib/breedingPath'
 import { SmartLink } from '../lib/history'
+import PalBoxPicker from '../components/PalBoxPicker'
 import { ElementBadge, ElementStripe, RarityBadge, DexNumber, PalPortrait } from '../components/PalBits'
 
 /**
- * Four questions you can ask the breeding table:
+ * Five questions you can ask the breeding table:
  *
  *   pair     these two -> what?          checking a specific cross
  *   partner  this one + everything else  what is this Pal good for?
  *   target   what makes this?            chasing something specific
  *   path     A -> ... -> B               moving passives onto another species
+ *   box      everything I own -> what?   what can I make without catching more
  *
- * All four read the same precomputed 44,850-pair table, so they always agree.
+ * All five read the same precomputed 44,850-pair table, so they always agree.
+ * The last two also read your box (see usePalBox), which narrows the answer
+ * from "what is possible" to "what you can do tonight".
  */
-type Mode = 'pair' | 'partner' | 'target' | 'path'
+type Mode = 'pair' | 'partner' | 'target' | 'path' | 'box'
 
 const MODES: Array<{ id: Mode; label: string; blurb: string }> = [
   { id: 'pair', label: 'Check a pair', blurb: 'Pick two parents and see the child.' },
   { id: 'partner', label: 'One parent', blurb: 'Pick one parent and see every partner and what each pairing makes.' },
   { id: 'target', label: 'Find parents', blurb: 'Pick what you want and see every pair that produces it.' },
   { id: 'path', label: 'Move passives', blurb: 'Got a perfect Lamball? See the shortest chain that walks its passives onto anything else.' },
+  { id: 'box', label: 'My box', blurb: 'Tick off the Pals you own and see everything they can make between them.' },
 ]
 
 export default function PalBreeder() {
@@ -96,12 +102,14 @@ export default function PalBreeder() {
         ? <PartnerMode data={data} pal={single} setPal={pick('parent', setSingle)} />
         : mode === 'target'
           ? <TargetMode data={data} target={target} setTarget={pick('target', setTarget)} />
-          : <PathMode
-              data={data}
-              from={carrier} to={goal}
-              setFrom={pickEnd('from')} setTo={pickEnd('to')}
-              onSwap={() => setEnds({ from: goal, to: carrier })}
-            />,
+          : mode === 'path'
+            ? <PathMode
+                data={data}
+                from={carrier} to={goal}
+                setFrom={pickEnd('from')} setTo={pickEnd('to')}
+                onSwap={() => setEnds({ from: goal, to: carrier })}
+              />
+            : <BoxMode data={data} />,
   )
 }
 
@@ -197,14 +205,19 @@ function PartnerMode({
 }) {
   const [filter, setFilter] = useState('')
   const [groupByChild, setGroupByChild] = useState(true)
+  const [boxOnly, setBoxOnly] = useState(false)
+  const box = usePalBox()
 
   // Every partner and what the cross makes. 288 rows, cheap to build.
+  // Narrowed to the box when you want to know what you can pair *tonight*
+  // rather than what the table allows.
   const rows = useMemo(() => {
     if (!pal) return []
-    return data.pals
+    const pool = boxOnly ? data.pals.filter(p => box.has(p.i)) : data.pals
+    return pool
       .map(partner => ({ partner, child: data.childOf(pal.i, partner.i) }))
       .filter((r): r is { partner: Pal; child: Pal } => r.child !== null)
-  }, [data, pal])
+  }, [data, pal, boxOnly, box])
 
   const shown = useMemo(() => {
     const q = filter.trim().toLowerCase()
@@ -235,6 +248,7 @@ function PartnerMode({
             <p className="text-sm text-gray-500 dark:text-gray-400">
               <strong className="text-gray-900 dark:text-white">{rows.length}</strong> partners ·{' '}
               <strong className="text-gray-900 dark:text-white">{distinctChildren}</strong> different results
+              {boxOnly && <> · from your box</>}
               {filter && <> · showing {shown.length}</>}
             </p>
             <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
@@ -247,6 +261,24 @@ function PartnerMode({
               Group by result
             </label>
           </div>
+
+          <Disclosure summary={boxOnly ? 'Limited to your box' : 'Limit to Pals you own'}>
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={boxOnly}
+                  onChange={e => setBoxOnly(e.target.checked)}
+                  className="rounded border-gray-300 dark:border-gray-600"
+                />
+                Only partners in my box
+              </label>
+              {boxOnly && box.size === 0 && (
+                <Empty>Your box is empty, so nothing matches. Tick some Pals below.</Empty>
+              )}
+              <PalBoxPicker pals={data.pals} box={box} />
+            </div>
+          </Disclosure>
 
           <FilterBox value={filter} onChange={setFilter} placeholder="Filter by partner or result…" />
 
@@ -343,6 +375,158 @@ function TargetMode({
           </div>
 
           {shown.length === 0 && <Empty>No parent pair matches "{filter}".</Empty>}
+        </>
+      )}
+    </div>
+  )
+}
+
+/* ----------------------------------------------------------------- box mode */
+
+/**
+ * "Here's my box, what can I make?"
+ *
+ * Same-species pairs are skipped, and that's provably lossless rather than a
+ * simplification: every one of the 288 Pals breeds true with itself, all 288
+ * checked, so a self-pair can never produce something you don't already have.
+ *
+ * Cost is one lookup per unordered pair. A 60-Pal box is 1,770 lookups into a
+ * flat typed array, which is nothing; the whole roster would still only be the
+ * 41,328 the reverse table already scans elsewhere on this page.
+ */
+function BoxMode({ data }: { data: PalworldData }) {
+  const box = usePalBox()
+  const [filter, setFilter] = useState('')
+  const [newOnly, setNewOnly] = useState(false)
+
+  const owned = useMemo(
+    () => data.pals.filter(p => box.has(p.i)).sort((a, b) => a.dex - b.dex),
+    [data, box],
+  )
+
+  const { results, pairCount } = useMemo(() => {
+    const byChild = new Map<number, Array<[Pal, Pal]>>()
+    let pairs = 0
+    for (let i = 0; i < owned.length; i++) {
+      for (let j = i + 1; j < owned.length; j++) {
+        pairs++
+        const child = data.childOf(owned[i].i, owned[j].i)
+        if (!child) continue
+        const list = byChild.get(child.i)
+        if (list) list.push([owned[i], owned[j]])
+        else byChild.set(child.i, [[owned[i], owned[j]]])
+      }
+    }
+    // Things you can't already get first, since those are the reason to look.
+    const out = [...byChild].map(([i, from]) => ({ child: data.all[i], from }))
+    out.sort((a, b) =>
+      Number(box.has(a.child.i)) - Number(box.has(b.child.i))
+      || b.from.length - a.from.length
+      || a.child.name.localeCompare(b.child.name))
+    return { results: out, pairCount: pairs }
+  }, [data, owned, box])
+
+  const fresh = useMemo(
+    () => results.filter(r => !box.has(r.child.i)).length,
+    [results, box],
+  )
+
+  const shown = useMemo(() => {
+    const q = filter.trim().toLowerCase()
+    return results.filter(r =>
+      (!newOnly || !box.has(r.child.i)) &&
+      (!q || r.child.name.toLowerCase().includes(q) ||
+        r.from.some(([a, b]) => a.name.toLowerCase().includes(q) || b.name.toLowerCase().includes(q))))
+  }, [results, filter, newOnly, box])
+
+  return (
+    <div className="space-y-5">
+      <PalBoxPicker pals={data.pals} box={box} />
+
+      {owned.length < 2 ? (
+        <Empty>
+          Tick at least two Pals and everything they can make between them shows up here.
+        </Empty>
+      ) : (
+        <>
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              <strong className="text-gray-900 dark:text-white">{owned.length}</strong> Pals ·{' '}
+              <strong className="text-gray-900 dark:text-white">{pairCount}</strong>{' '}
+              {pairCount === 1 ? 'pairing' : 'pairings'} ·{' '}
+              <strong className="text-gray-900 dark:text-white">{results.length}</strong> different
+              results, <strong className="text-emerald-600 dark:text-emerald-400">{fresh}</strong> of
+              them not already in your box.
+            </p>
+            <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+              Pairing a Pal with another of its own species always breeds true, so those are left
+              out. Every one of the 288 was checked, nothing is lost by skipping them.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 flex-wrap">
+            <FilterBox value={filter} onChange={setFilter} placeholder="Filter by result or parent…" />
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={newOnly}
+                onChange={e => setNewOnly(e.target.checked)}
+                className="rounded border-gray-300 dark:border-gray-600"
+              />
+              Only what I don't have
+            </label>
+          </div>
+
+          <div className="space-y-2">
+            {shown.map(({ child, from }) => (
+              <article
+                key={child.i}
+                className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden"
+              >
+                <ElementStripe elements={child.elements} />
+                <div className="p-3 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <MiniPal pal={child} />
+                    {!box.has(child.i) && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                        <Sparkles size={11} /> new to you
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {from.length} {from.length === 1 ? 'way' : 'ways'}
+                    </span>
+                  </div>
+                  <Disclosure summary={`Show the ${from.length === 1 ? 'pairing' : 'pairings'}`}>
+                    {/* The result repeats on every row even though the card is
+                        already grouped by it: a row you're reading mid-list
+                        should say what it makes without a look back up. */}
+                    <div className="grid gap-2 xl:grid-cols-2">
+                      {from.map(([a, b]) => (
+                        <div
+                          key={`${a.i}-${b.i}`}
+                          className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-2.5 py-2"
+                        >
+                          <MiniPal pal={a} tiny />
+                          <span className="shrink-0 text-gray-400 text-sm">+</span>
+                          <MiniPal pal={b} tiny />
+                          <ArrowRight size={14} className="shrink-0 text-gray-400" />
+                          <MiniPal pal={child} tiny />
+                        </div>
+                      ))}
+                    </div>
+                  </Disclosure>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {shown.length === 0 && (
+            <Empty>
+              {results.length === 0
+                ? 'None of these Pals breed with each other.'
+                : `Nothing matches${filter ? ` "${filter}"` : ''}.`}
+            </Empty>
+          )}
         </>
       )}
     </div>

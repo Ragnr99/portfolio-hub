@@ -12,7 +12,7 @@
  */
 
 import {
-  Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg, Network, Sparkles,
+  Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg, Network, Sparkles, Package,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -120,6 +120,12 @@ export const PROJECTS: Project[] = [
         path: '/palworld/passives', label: 'Passive Dex', icon: Sparkles,
         hint: 'All 115 passives, and what any four add up to',
         keywords: ['passive', 'skill', 'trait', 'legend', 'demon god', 'buff', 'debuff', 'theorycraft', 'build', 'loadout'],
+      },
+      {
+        path: '/palworld/drops', label: 'Drops Dex', icon: Package,
+        hint: 'What every Pal drops, and who to farm for an item',
+        keywords: ['drop', 'drops', 'loot', 'butcher', 'butchering', 'disassembly',
+          'disassemble', 'farm', 'material', 'ingot', 'ore', 'leather', 'item'],
       },
       {
         path: '/palworld/map', label: 'Interactive Map', icon: Map,

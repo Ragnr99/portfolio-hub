@@ -8,6 +8,8 @@ import {
   ElementBadge, ElementStripe, StatBar, WorkGrid, RarityBadge, DexNumber, PalPortrait,
 } from '../components/PalBits'
 import { SmartLink } from '../lib/history'
+import { parseDrops } from '../lib/drops'
+import { DropChip, ButcherNote } from './PalDrops'
 import BackLink from '../components/BackLink'
 import { useSpawnIndex } from '../hooks/useSpawnIndex'
 
@@ -122,9 +124,18 @@ export default function PalPage() {
 
           {pal.drops.length > 0 && (
             <Section title="Drops">
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-0.5">
-                {pal.drops.map((d, k) => <li key={k}>{d}</li>)}
-              </ul>
+              <div className="flex flex-wrap gap-1.5">
+                {parseDrops(pal).map((d, k) => <DropChip key={k} drop={d} />)}
+              </div>
+              <div className="mt-3">
+                <ButcherNote />
+              </div>
+              <SmartLink
+                to="/palworld/drops"
+                className="inline-block mt-3 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                Compare every Pal's drops →
+              </SmartLink>
             </Section>
           )}
         </div>

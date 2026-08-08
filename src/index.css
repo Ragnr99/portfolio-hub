@@ -180,3 +180,35 @@
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Palworld hub.
+   A slow ribbon of real Pal art across the header. The list is rendered twice
+   and shifted by exactly half its width, so the loop closes with no seam.
+   --------------------------------------------------------------------------- */
+
+@keyframes pal-ribbon {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.pal-ribbon {
+  animation: pal-ribbon 90s linear infinite;
+  will-change: transform;
+}
+
+/* Element hue is set per card as --el; these just read it, so one variable
+   drives the border, the glow and the icon together. */
+.el-card {
+  border-color: color-mix(in srgb, var(--el) 28%, transparent);
+}
+.el-card:hover {
+  border-color: color-mix(in srgb, var(--el) 60%, transparent);
+  box-shadow: 0 8px 30px -12px color-mix(in srgb, var(--el) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pal-ribbon {
+    animation: none;
+  }
+}

@@ -76,6 +76,11 @@ export const palBox = {
   clear() {
     commit(EMPTY)
   },
+  /** Replace the box wholesale. Only for accepting a shared link, and only
+   *  ever behind a confirmation - it discards whatever was already saved. */
+  replace(ids: Iterable<number>) {
+    commit(new Set(ids))
+  },
 }
 
 /** The current box. Re-renders on any change, from anywhere. */

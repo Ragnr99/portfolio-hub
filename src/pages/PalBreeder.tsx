@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info, X, ChevronDown, Route, Sparkles } from 'lucide-react'
+import { Egg, Search, ArrowRight, Shuffle, Venus, Mars, Info, X, ChevronDown, Route, Sparkles, Link2, Check } from 'lucide-react'
 import { usePalworldData, type Pal, type PalworldData } from '../hooks/usePalworldData'
-import { usePalBox } from '../hooks/usePalBox'
+import { usePalBox, palBox } from '../hooks/usePalBox'
+import { encodeBox, decodeBox } from '../lib/boxCode'
 import { planBreedingPath, type PathStep, type StepOption } from '../lib/breedingPath'
 import { SmartLink } from '../lib/history'
 import PalBoxPicker from '../components/PalBoxPicker'
@@ -35,9 +36,12 @@ export default function PalBreeder() {
   const { data, loading, error } = usePalworldData()
   const [params, setParams] = useSearchParams()
   const [mode, setMode] = useState<Mode>(
-    params.get('from') || params.get('to') ? 'path'
-      : params.get('parent') ? 'partner'
-        : params.get('target') ? 'target' : 'pair')
+    params.get('box') ? 'box'
+      : params.get('from') || params.get('to') ? 'path'
+        : params.get('parent') ? 'partner'
+          : params.get('target') ? 'target' : 'pair')
+  /** A box from a ?box= link, held until it's accepted or waved off. */
+  const [incoming, setIncoming] = useState<Set<number> | null>(null)
   const [parentA, setParentA] = useState<Pal | null>(null)
   const [parentB, setParentB] = useState<Pal | null>(null)
   const [single, setSingle] = useState<Pal | null>(null)
@@ -66,7 +70,23 @@ export default function PalBreeder() {
       if (g) setGoal(g)
       setMode('path')
     }
+
+    const code = params.get('box')
+    if (code) {
+      const shared = decodeBox(code, data.all.length)
+      if (shared.size) { setIncoming(shared); setMode('box') }
+    }
   }, [data, params])
+
+  /** Accepting replaces the saved box; either way the code leaves the URL so a
+   *  refresh doesn't ask again. */
+  const resolveIncoming = (keep: boolean) => {
+    if (keep && incoming) palBox.replace(incoming)
+    setIncoming(null)
+    const next = new URLSearchParams(params)
+    next.delete('box')
+    setParams(next, { replace: true })
+  }
 
   const shell = (children: React.ReactNode) => (
     <Shell mode={mode} setMode={setMode}>{children}</Shell>
@@ -109,7 +129,7 @@ export default function PalBreeder() {
                 setFrom={pickEnd('from')} setTo={pickEnd('to')}
                 onSwap={() => setEnds({ from: goal, to: carrier })}
               />
-            : <BoxMode data={data} />,
+            : <BoxMode data={data} incoming={incoming} onIncoming={resolveIncoming} />,
   )
 }
 
@@ -394,10 +414,28 @@ function TargetMode({
  * flat typed array, which is nothing; the whole roster would still only be the
  * 41,328 the reverse table already scans elsewhere on this page.
  */
-function BoxMode({ data }: { data: PalworldData }) {
+function BoxMode({ data, incoming, onIncoming }: {
+  data: PalworldData
+  /** A box arriving from a ?box= link, pending accept or dismiss. */
+  incoming: Set<number> | null
+  onIncoming: (keep: boolean) => void
+}) {
   const box = usePalBox()
   const [filter, setFilter] = useState('')
   const [newOnly, setNewOnly] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const share = async () => {
+    const url = `${window.location.origin}/palworld/breeder?box=${encodeBox(box)}`
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      window.prompt('Copy your box link', url)  // clipboard blocked, e.g. plain http
+      return
+    }
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 2000)
+  }
 
   const owned = useMemo(
     () => data.pals.filter(p => box.has(p.i)).sort((a, b) => a.dex - b.dex),
@@ -441,7 +479,35 @@ function BoxMode({ data }: { data: PalworldData }) {
 
   return (
     <div className="space-y-5">
+      {/* A shared box replaces yours, so it never lands without being asked. */}
+      {incoming && (
+        <Note tone="warn" title={`This link carries a box of ${incoming.size} ${incoming.size === 1 ? 'Pal' : 'Pals'}`}>
+          Loading it replaces the {box.size} {box.size === 1 ? 'Pal' : 'Pals'} currently saved in
+          this browser.{' '}
+          <button
+            onClick={() => onIncoming(true)}
+            className="underline underline-offset-2 font-semibold hover:no-underline"
+          >
+            Load it
+          </button>
+          {' · '}
+          <button
+            onClick={() => onIncoming(false)}
+            className="underline underline-offset-2 hover:no-underline"
+          >
+            Keep mine
+          </button>
+        </Note>
+      )}
+
       <PalBoxPicker pals={data.pals} box={box} />
+
+      {box.size > 0 && (
+        <button onClick={share} className={GHOST_BTN}>
+          {copied ? <Check size={14} /> : <Link2 size={14} />}
+          {copied ? 'Link copied' : 'Copy a link to this box'}
+        </button>
+      )}
 
       {owned.length < 2 ? (
         <Empty>

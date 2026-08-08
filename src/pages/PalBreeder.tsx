@@ -28,7 +28,7 @@ const MODES: Array<{ id: Mode; label: string; blurb: string }> = [
   { id: 'pair', label: 'Check a pair', blurb: 'Pick two parents and see the child.' },
   { id: 'partner', label: 'One parent', blurb: 'Pick one parent and see every partner and what each pairing makes.' },
   { id: 'target', label: 'Find parents', blurb: 'Pick what you want and see every pair that produces it.' },
-  { id: 'path', label: 'Move passives', blurb: 'Got a perfect Lamball? See the shortest chain that walks its passives onto anything else.' },
+  { id: 'path', label: 'Shortest path', blurb: 'Fewest breeding steps from a Pal you have to a Pal you want, so its passives carry across.' },
   { id: 'box', label: 'My box', blurb: 'Tick off the Pals you own and see everything they can make between them.' },
 ]
 

@@ -246,21 +246,26 @@ function ByItem({ pals, query, sureOnly, onPickItem }: {
 /* ------------------------------------------------------------------- pieces */
 
 /**
- * Why there's one table here and not two.
+ * What butchering does, limited to what's actually supported.
  *
- * People reasonably expect butchering, or the Disassembly Conveyor, to have its
- * own loot list. It doesn't: the cleaver "lets them obtain their drops once
- * again", and the conveyor "automatically butchers any Pal placed inside". Both
- * re-roll the table below. Saying so is more useful than inventing a split, and
- * it explains why the meat is sitting in with everything else.
+ * This used to assert that butchering re-rolls this exact table, on the wiki's
+ * "lets them obtain their drops once again". That went too far. Nicholas
+ * observed Mimog's Dog Coins dropping on defeat but not on butcher, and the
+ * wiki then removed that very line from Mimog's drops - two independent hints
+ * that the butcher pool is not simply a copy of this one.
+ *
+ * No source anywhere publishes a separate butcher table, so the honest move is
+ * to keep the part that is documented (butchering is another shot at drops, and
+ * it's the standard Alpha schematic re-roll) and drop the identity claim. If a
+ * datamined butcher table ever surfaces, this is where the split would go.
  */
 export function ButcherNote() {
   return (
     <p className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-3 py-2 text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-      <strong className="text-gray-900 dark:text-white">Butchering uses this same table.</strong>{' '}
-      A Meat Cleaver, or a Pal Disassembly Conveyor, gives you another roll at the list rather than
-      separate loot, which is why the meat is in it. That second roll is the reason Alphas get
-      butchered for schematics.
+      <strong className="text-gray-900 dark:text-white">Butchering is another shot at this list.</strong>{' '}
+      A Meat Cleaver, or a Pal Disassembly Conveyor, pulls drops from a Pal you've already caught,
+      which is how Alphas get re-rolled for schematics. Exact butcher odds aren't published, so
+      treat the percentages here as the defeat and capture table.
     </p>
   )
 }

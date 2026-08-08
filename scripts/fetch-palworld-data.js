@@ -87,6 +87,52 @@ function plain(s) {
     .trim()
 }
 
+/**
+ * Drop lines the wiki is missing, keyed by internal name.
+ *
+ * The wiki is community-edited, so a line the game still gives you can vanish
+ * because one editor disagreed with it. This is the escape hatch, and it lives
+ * here rather than in the app so a re-fetch re-applies it instead of wiping it.
+ *
+ * Rules for anything added here: say what was observed, say who observed it,
+ * and say what would let the entry be deleted. An override with no exit
+ * condition is just a lie with a comment on it.
+ */
+const DROP_OVERRIDES = {
+  // Present on the wiki until sometime between 2026-07-27 and 2026-08-08, then
+  // removed. Nicholas still gets Dog Coins off Mimog on defeat in 1.0, but
+  // reports they do NOT come from butchering - which may be exactly why an
+  // editor pulled the line, the infobox having nowhere to express that split.
+  // Drop this entry if the wiki restores the line, or if the drop stops.
+  MimicDog: [{ at: 1, line: '14-21 Dog Coin (100%)' }],
+}
+
+/** Item name out of a drop line, for checking whether it's already there. */
+const dropItem = line =>
+  line.replace(/^\d+(?:\s*-\s*\d+)?\s+/, '').replace(/\s*\(\d+(?:\.\d+)?%\)$/, '').trim()
+
+/**
+ * Re-insert any missing override lines. Absence is checked by item name, not by
+ * exact string, so a wiki edit that only changes the amount or the odds counts
+ * as the line being back and the override stays out of the way.
+ */
+function withDropOverrides(internal, drops) {
+  const fixes = DROP_OVERRIDES[internal]
+  if (!fixes) return drops
+
+  const out = [...drops]
+  for (const { at, line } of fixes) {
+    const item = dropItem(line)
+    if (out.some(d => dropItem(d) === item)) {
+      console.log(`  override not needed: ${internal} already lists ${item}`)
+      continue
+    }
+    out.splice(Math.min(at, out.length), 0, line)
+    console.log(`  override applied: ${internal} += ${line}`)
+  }
+  return out
+}
+
 /** Drops are <br>-separated in the infobox; keep them as separate entries. */
 function plainList(s) {
   return s.split(/<br\s*\/?>|\n/i).map(plain).filter(Boolean)
@@ -229,7 +275,7 @@ async function main() {
         work: WORK_KEYS.map(k => p.WorkSuitability?.[k] ?? 0),
         partnerSkill: w.partnerSkill || '',
         partnerDesc: w.partnerDesc || '',
-        drops: w.drops ?? [],
+        drops: withDropOverrides(p.InternalName, w.drops ?? []),
       }
     }),
     breeding: {

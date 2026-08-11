@@ -26,7 +26,7 @@ export default function PalworldMap() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Palworld Map</h1>
             <p className="text-gray-500 dark:text-gray-400">
-              Live interactive map of the Palpagos Islands — ~13,400 markers, per-Pal spawns, search and filters.
+              Live interactive map of the Palpagos Islands — ~13,460 markers, per-Pal spawns, search and filters.
             </p>
           </div>
         </div>
@@ -64,6 +64,10 @@ export default function PalworldMap() {
           Switch between Palpagos and the World Tree at the top left, toggle layers, pick a Pal to see its day/night
           spawn points, or filter by base game vs DLC. Tip: use{' '}
           <span className="font-medium">Open full screen</span> for more room.
+        </p>
+        <p>
+          <span className="font-medium">Journal Notes</span> marks all 55 readable notes, split into the ten diaries
+          and journals they belong to, and each one links to its text. Mark them collected as you read them.
         </p>
         <p>
           Map imagery and all marker data come from{' '}

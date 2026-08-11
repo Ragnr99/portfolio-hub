@@ -79,8 +79,8 @@ export default function Palworld() {
           to="https://github.com/Ragnr99/palworld-overlay"
           external
           icon={Monitor}
-          label="Desktop Overlay"
-          hint="A desktop app, not a web page. A click-through element chart and a live minimap pinned over the game, with the 55 journal notes marked on it. Hides itself whenever a menu is open."
+          label="Type Chart Overlay"
+          hint="A desktop app, not a web page. A click-through element chart pinned over the game that hides itself whenever a menu is open."
           element="Ice"
           preview={<ElementRing />}
         />

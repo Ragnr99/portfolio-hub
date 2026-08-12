@@ -18,6 +18,7 @@ import {
   usePalworldData, ELEMENT_COLORS, ELEMENTS, type Pal, type PalworldData,
 } from '../hooks/usePalworldData'
 import { usePalworldPassives } from '../hooks/usePalworldPassives'
+import { usePalworldQuests, type QuestData } from '../hooks/usePalworldQuests'
 import { itemIndex } from '../lib/drops'
 import { PROJECTS } from '../lib/projects'
 import { PalPortrait } from '../components/PalBits'
@@ -32,12 +33,14 @@ const TOOL_ELEMENT: Record<string, string> = {
   '/palworld/breeder': 'Dark',
   '/palworld/passives': 'Electric',
   '/palworld/drops': 'Fire',
+  '/palworld/quests': 'Dragon',
   '/palworld/map': 'Grass',
 }
 
 export default function Palworld() {
   const { data, loading } = usePalworldData()
   const { data: passives } = usePalworldPassives()
+  const { data: quests } = usePalworldQuests()
 
   const itemCount = useMemo(
     () => (data ? itemIndex(data.pals).length : 0),
@@ -59,6 +62,7 @@ export default function Palworld() {
           { value: data ? (data.all.length * (data.all.length + 1)) / 2 : undefined, label: 'Breeding pairs' },
           { value: passives?.skills.length, label: 'Passive skills' },
           { value: itemCount || undefined, label: 'Droppable items' },
+          { value: quests?.quests.length, label: 'Quests' },
         ]}
       />
 
@@ -71,7 +75,7 @@ export default function Palworld() {
             label={label}
             hint={hint}
             element={TOOL_ELEMENT[path] ?? 'Neutral'}
-            preview={data ? previewFor(path, data, passives) : null}
+            preview={data ? previewFor(path, data, passives, quests) : null}
           />
         ))}
 
@@ -125,8 +129,9 @@ function Hero({ data, loading }: { data: PalworldData | null; loading: boolean }
           Tools built from the game's own tables
         </h1>
         <p className="mt-3 max-w-xl text-white/70 leading-relaxed">
-          A dex, a breeding calculator, a passive stacker, a drop index and a live map. Every answer
-          comes out of extracted game data, not a formula that gets it mostly right.
+          A dex, a breeding calculator, a passive stacker, a drop index, a quest tree and a live
+          map. Every answer comes out of extracted game data, not a formula that gets it mostly
+          right.
         </p>
 
         <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
@@ -161,7 +166,7 @@ function Hero({ data, loading }: { data: PalworldData | null; loading: boolean }
 
 function StatRow({ stats }: { stats: Array<{ value: number | undefined; label: string }> }) {
   return (
-    <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {stats.map(({ value, label }) => (
         <div
           key={label}
@@ -229,7 +234,12 @@ function ToolCard({ to, icon: Icon, label, hint, element, preview, external = fa
 }
 
 /** A real row from each tool, so a card shows what it does rather than describing it. */
-function previewFor(path: string, data: PalworldData, passives: ReturnType<typeof usePalworldPassives>['data']) {
+function previewFor(
+  path: string,
+  data: PalworldData,
+  passives: ReturnType<typeof usePalworldPassives>['data'],
+  quests: QuestData | null,
+) {
   switch (path) {
     case '/palworld/palpedia': {
       const step = Math.max(1, Math.floor(data.pals.length / 7))
@@ -264,6 +274,29 @@ function previewFor(path: string, data: PalworldData, passives: ReturnType<typeo
       return passives ? <Chips items={passives.skills.slice(0, 4).map(s => s.name)} /> : null
     case '/palworld/drops':
       return <Chips items={itemIndex(data.pals).slice(0, 4).map(e => e.item)} />
+    case '/palworld/quests': {
+      // The opening of the main line, in the order the game gives it, so the
+      // card shows the actual chain rather than describing one.
+      if (!quests) return null
+      const opening = quests.mainSections[0]?.quests.slice(0, 3) ?? []
+      if (!opening.length) return null
+      return (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-gray-600 dark:text-gray-400">
+          {opening.map((quest, i) => (
+            <span key={quest.id} className="flex items-center gap-1.5">
+              {i > 0 && <ArrowRight size={11} className="text-gray-400" />}
+              <span className="rounded-lg bg-gray-100 dark:bg-gray-700/50 px-2 py-1 text-gray-700 dark:text-gray-200">
+                {quest.name}
+              </span>
+            </span>
+          ))}
+          <ArrowRight size={11} className="text-gray-400" />
+          <span className="text-gray-400">
+            {quests.mainSections[0].quests.length - opening.length} more
+          </span>
+        </div>
+      )
+    }
     default:
       return null
   }

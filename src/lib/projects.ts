@@ -13,6 +13,7 @@
 
 import {
   Newspaper, Gamepad2, Swords, BookOpen, Map, Code, Egg, Network, Sparkles, Package,
+  ScrollText,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -128,6 +129,12 @@ export const PROJECTS: Project[] = [
           'disassemble', 'farm', 'material', 'ingot', 'ore', 'leather', 'item'],
       },
       {
+        path: '/palworld/quests', label: 'Quest Tree', icon: ScrollText,
+        hint: 'All 117 quests, their steps, and what each one leads to',
+        keywords: ['quest', 'quests', 'mission', 'missions', 'walkthrough', 'guide', 'objective',
+          'main story', 'side quest', 'questline', 'story', 'progression', 'unlock', 'reward'],
+      },
+      {
         path: '/palworld/map', label: 'Interactive Map', icon: Map,
         hint: 'Spawns, chests, dungeons, notes and fast travel',
         keywords: ['spawn', 'chest', 'dungeon', 'location', 'effigy', 'note', 'notebook', 'journal', 'diary'],
@@ -136,9 +143,9 @@ export const PROJECTS: Project[] = [
     keywords: ['pal','palworld','breeding','dex','map','spawn'],
     featured: true,
     title: 'Palworld Tools',
-    description: 'A Palpedia, a breeding calculator, a passive-skill workbench, and an interactive map',
+    description: 'A Palpedia, a breeding calculator, a passive-skill workbench, a quest tree, and an interactive map',
     longDescription:
-      'Four tools over the game\'s own data. The Palpedia covers all 288 Pals with combat stats, work suitability, partner skills, drops and type matchups. The breeder works both directions: two parents to a child, or a target Pal to every parent pair that makes it. It ships the game\'s entire 44,850-pair breeding table rather than a formula, because the widely repeated "average the two CombiRanks" rule only reproduces about 69% of real results. The Passive Dex catalogues all 115 passive skills in 1.0 and stacks any four of them into one set of totals, with every number parsed out of the game\'s own descriptions by a build script that fails rather than guess. The map is a Leaflet build of the Palpagos Islands with ~13,460 markers across 14 toggleable layers, per-Pal day/night spawn clouds, all 55 readable journal notes, and a coordinate transform reverse-engineered from the game files. There is also a desktop overlay that pins the element chart over the game and hides itself whenever a menu is open.',
+      'Five tools over the game\'s own data. The Palpedia covers all 288 Pals with combat stats, work suitability, partner skills, drops and type matchups. The breeder works both directions: two parents to a child, or a target Pal to every parent pair that makes it. It ships the game\'s entire 44,850-pair breeding table rather than a formula, because the widely repeated "average the two CombiRanks" rule only reproduces about 69% of real results. The Passive Dex catalogues all 115 passive skills in 1.0 and stacks any four of them into one set of totals, with every number parsed out of the game\'s own descriptions by a build script that fails rather than guess. The Quest Tree carries all 117 quests from DT_PalQuestData with their objectives in the order the game asks for them, and is candid that Palworld\'s quests are a chain and a set of questgiver lines rather than a branching tree, so it reconnects the 57 unlinked side missions by map distance instead of inventing edges. The map is a Leaflet build of the Palpagos Islands with ~13,460 markers across 14 toggleable layers, per-Pal day/night spawn clouds, all 55 readable journal notes, and a coordinate transform reverse-engineered from the game files. There is also a desktop overlay that pins the element chart over the game and hides itself whenever a menu is open.',
     tags: ['React', 'TypeScript', 'Leaflet', 'Datamining', 'Python'],
     icon: Map,
     accent: 'from-green-500 via-lime-400 to-emerald-500',

@@ -15,6 +15,7 @@ import Palpedia from './pages/Palpedia'
 import PalBreeder from './pages/PalBreeder'
 import PalPassives from './pages/PalPassives'
 import PalDrops from './pages/PalDrops'
+import PalQuests from './pages/PalQuests'
 import PalPage from './pages/PalPage'
 import PokemonPage from './pages/PokemonPage'
 
@@ -39,6 +40,7 @@ function App() {
             <Route path="/palworld/breeder" element={<PalBreeder />} />
             <Route path="/palworld/passives" element={<PalPassives />} />
             <Route path="/palworld/drops" element={<PalDrops />} />
+            <Route path="/palworld/quests" element={<PalQuests />} />
             <Route path="/palworld/pal/:slug" element={<PalPage />} />
           </Routes>
         </Layout>

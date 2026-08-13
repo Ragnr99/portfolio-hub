@@ -130,8 +130,7 @@ function Hero({ data, loading }: { data: PalworldData | null; loading: boolean }
         </h1>
         <p className="mt-3 max-w-xl text-white/70 leading-relaxed">
           A dex, a breeding calculator, a passive stacker, a drop index, a quest tree and a live
-          map. Every answer comes out of extracted game data, not a formula that gets it mostly
-          right.
+          map. Every answer comes straight out of extracted game data.
         </p>
 
         <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
@@ -349,9 +348,8 @@ function Provenance({ data, loading }: { data: PalworldData | null; loading: boo
       <h2 className="font-semibold text-gray-900 dark:text-white">Where the data comes from</h2>
       <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
         Stats and the full breeding table are extracted from the game files. Element types, partner
-        skills and drops are parsed from the Palworld wiki. The breeding table ships whole rather
-        than as a formula, because the widely-repeated "average the two ranks" rule only reproduces
-        about 69% of real results.
+        skills and drops are parsed from the Palworld wiki. The breeding table ships whole. The
+        widely-repeated "average the two ranks" rule reproduces about 69% of real results.
       </p>
       <p className="mt-3 text-xs text-gray-500 dark:text-gray-500 tabular-nums">
         {loading

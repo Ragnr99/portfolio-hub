@@ -244,7 +244,7 @@ export default function PalPassives() {
         <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
           The 115 skills, their tiers and their descriptions come out of the game's own DataTables. The numbers are
           parsed from those descriptions by a build script that refuses to run if it meets a line it doesn't
-          recognise, so a patch that rewords an effect breaks the build instead of quietly dropping a stat.
+          recognise. A patch that rewords an effect breaks the build.
         </p>
         <p className="mt-3 text-sm text-gray-500 dark:text-gray-500">
           Version {data.gameVersion} · {data.skills.length} passives · built{' '}

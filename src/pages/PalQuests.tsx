@@ -471,17 +471,16 @@ function Provenance({ data }: { data: QuestData }) {
           step.
         </p>
         <p>
-          Palworld's quests are less of a tree than the name suggests, and the page doesn't pretend
-          otherwise. The main missions are one chain about 30 quests long, with two tutorial entry
-          points that converge. Most side missions have no recorded links at all — what unlocks them
-          lives in Blueprint graphs the datamine never reached — so rather than invent connections
-          they're grouped by questgiver, and <strong>Nearby</strong> reconnects them by map distance.
+          The main missions form one chain about 30 quests long, with two tutorial entry points that
+          converge. Most side missions carry no links at all — what unlocks them lives in Blueprint
+          graphs the datamine never reached. Those are shelved by questgiver, and{' '}
+          <strong>Nearby</strong> reconnects them by map distance.
         </p>
         <p>
           Names in braces like <code className="font-mono text-xs">{'{KingWhale}'}</code> are the
-          game's own substitution tokens, which the source ships unresolved. They're left visible
-          rather than guessed at: the internal id often isn't the display name — that one is the Pal
-          you know as Panthalus.
+          game's own substitution tokens, and the source ships them unresolved. The internal id is
+          rarely the display name — that one is the Pal you know as Panthalus — so they appear here
+          exactly as the game writes them.
         </p>
       </div>
       <p className="mt-3 text-xs text-gray-500 dark:text-gray-500 tabular-nums">

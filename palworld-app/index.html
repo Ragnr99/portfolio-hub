@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Palworld Interactive Map</title>
+    <script type="module" crossorigin src="./assets/index-D6xr3iDj.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BHicO_v1.css">
+  </head>
+  <body>
+    <div id="app">
+      <button id="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span class="bars"></span>
+      </button>
+      <div id="backdrop" hidden></div>
+      <aside id="sidebar">
+        <h1>Palworld Map</h1>
+
+        <div class="seg" id="map-seg">
+          <button data-map="palpagos" class="on" type="button">Palpagos</button>
+          <button data-map="tree" type="button">World Tree</button>
+        </div>
+        <p class="hint" id="region-note" hidden>
+          The World Tree has its own 379 markers in the layer list. No wild-spawn
+          data is published for it, so the Pal spawn viewer and the Base/DLC
+          filter are Palpagos-only.
+        </p>
+
+        <input id="search" type="search" placeholder="Search markers (name)…" autocomplete="off" />
+
+        <section class="acc open" data-acc>
+          <button class="acc-head" type="button" aria-expanded="true">
+            <span>Pal Spawns</span><span class="chevron"></span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <div class="combo" id="pal-combo">
+                <input id="pal-search" type="text" placeholder="Search a Pal…" autocomplete="off" role="combobox" aria-expanded="false" />
+                <div class="combo-list" id="pal-list" hidden></div>
+              </div>
+              <div class="chips">
+                <button class="chip on" type="button" data-spawn="day"><span class="dot day"></span>Day</button>
+                <button class="chip on" type="button" data-spawn="night"><span class="dot night"></span>Night</button>
+                <button class="chip" type="button" data-spawn="heat">Heatmap</button>
+                <button class="chip ghost" type="button" id="spawn-clear">Clear</button>
+              </div>
+              <div id="spawn-status" class="hint"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="acc open" data-acc>
+          <button class="acc-head" type="button" aria-expanded="true">
+            <span>Region</span><span class="chevron"></span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <div class="seg" id="region-seg">
+                <button data-region="all" class="on" type="button">All</button>
+                <button data-region="base" type="button">Base</button>
+                <button data-region="dlc" type="button">DLC</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="acc open" data-acc>
+          <button class="acc-head" type="button" aria-expanded="true">
+            <span>Layers</span><span class="chevron"></span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-inner">
+              <div class="cat-head master-head">
+                <span class="cat-expand static">
+                  <span class="cat-chev spacer"></span>
+                  <span class="layer-label">All layers</span>
+                  <span class="layer-count" id="layers-master-count"></span>
+                </span>
+                <span class="switch"><input type="checkbox" id="layers-master" /><span class="track"></span></span>
+              </div>
+              <div id="layer-controls"></div>
+            </div>
+          </div>
+        </section>
+
+        <div id="coord-readout">Hover the map for coords</div>
+
+        <p class="credit">
+          Map imagery and marker data from
+          <a href="https://paldb.cc" target="_blank" rel="noopener">paldb.cc</a>.
+          Pal art from the
+          <a href="https://palworld.fandom.com" target="_blank" rel="noopener">Palworld Wiki</a>.
+          Unofficial fan project.
+        </p>
+      </aside>
+      <div id="map"></div>
+    </div>
+  </body>
+</html>

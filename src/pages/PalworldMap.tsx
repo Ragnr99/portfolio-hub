@@ -26,7 +26,7 @@ export default function PalworldMap() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Palworld Map</h1>
             <p className="text-gray-500 dark:text-gray-400">
-              Live interactive map of the Palpagos Islands — ~13,460 markers, per-Pal spawns, search and filters.
+              Live interactive map — Palpagos and the World Tree, 13,842 markers, per-Pal spawns, search and filters.
             </p>
           </div>
         </div>
@@ -66,8 +66,14 @@ export default function PalworldMap() {
           <span className="font-medium">Open full screen</span> for more room.
         </p>
         <p>
-          <span className="font-medium">Journal Notes</span> marks all 55 readable notes, split into the ten diaries
-          and journals they belong to, and each one links to its text. Mark them collected as you read them.
+          Both maps carry their own markers: 13,463 across 14 layers on Palpagos, and the World Tree's own 379
+          across 13 — its 47 effigies, 38 chests, 80 Paloxite nodes and the rest. The tree is a separate
+          coordinate space, not a corner of the island, so it gets its own transform.
+        </p>
+        <p>
+          <span className="font-medium">Journal Notes</span> marks all 64 readable notes, 55 on Palpagos split into
+          the ten diaries and journals they belong to and nine more inside the tree, and each one links to its text.
+          Mark them collected as you read them.
         </p>
         <p>
           Map imagery and all marker data come from{' '}

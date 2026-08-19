@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
 import { NavStackProvider } from './lib/history'
+import { titleFor } from './lib/nav'
+import { useDocumentTitle } from './hooks/useDocumentTitle'
 import Home from './pages/Home'
 import Daybreak from './pages/Daybreak'
 import Clustering from './pages/Clustering'
@@ -19,11 +21,23 @@ import PalQuests from './pages/PalQuests'
 import PalPage from './pages/PalPage'
 import PokemonPage from './pages/PokemonPage'
 
+/**
+ * Names the tab on every navigation. Sits above <Layout> rather than inside it
+ * so its effect runs before the page's: a detail page that knows its subject's
+ * real name overwrites the title derived from the url, never the other way
+ * round.
+ */
+function TitleSync() {
+  useDocumentTitle(titleFor(useLocation().pathname))
+  return null
+}
+
 function App() {
   return (
     <ThemeProvider>
       <Router basename={import.meta.env.BASE_URL}>
         <NavStackProvider>
+        <TitleSync />
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />

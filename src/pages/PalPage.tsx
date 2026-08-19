@@ -12,6 +12,7 @@ import { parseDrops } from '../lib/drops'
 import { DropChip, ButcherNote } from './PalDrops'
 import BackLink from '../components/BackLink'
 import { useSpawnIndex } from '../hooks/useSpawnIndex'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export default function PalPage() {
   const { slug = '' } = useParams()
@@ -30,6 +31,11 @@ export default function PalPage() {
       defense: Math.max(...data.pals.map(p => p.defense)),
     }
   }, [data])
+
+  // The url already gave the tab a name; this replaces it with the record's own,
+  // which is the only way a Pal sharing a name with another gets its true title
+  // rather than the disambiguating suffix its slug carries.
+  useDocumentTitle(pal ? `${pal.name} | Palpedia | Nicholas Lubold` : null)
 
   if (loading) return <Wrap><p className="text-gray-500 dark:text-gray-400">Loading…</p></Wrap>
   if (error || !data) {

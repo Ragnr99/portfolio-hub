@@ -94,6 +94,39 @@ export function labelFor(url: string): string | null {
 }
 
 /**
+ * What the tab says for a url.
+ *
+ * Deliberately identical to inject() in scripts/prerender.js: a page reached by
+ * clicking has to end up with the same title a refresh or a shared link gives,
+ * and both sides read the same registry, so neither can drift. The one thing
+ * not derivable here is a detail page's real name - the slug is close enough to
+ * name it without waiting on a fetch, and the page itself refines it once the
+ * record loads.
+ */
+const SITE_TITLE = 'Nicholas Lubold | Portfolio'
+const SUFFIX = ' | Nicholas Lubold'
+
+const pretty = (s: string) =>
+  s.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+
+export function titleFor(pathname: string): string {
+  const here = canonical(pathname)
+  // The shell's own title stands at the root: prerender skips '/' on purpose.
+  if (here === '/') return SITE_TITLE
+
+  const item = BY_PATH.get(here)
+  if (item) return item.label + SUFFIX
+
+  const pal = /^\/palworld\/pal\/(.+)$/.exec(here)
+  if (pal) return `${pretty(pal[1])} | Palpedia${SUFFIX}`
+  const mon = /^\/pokedex\/(.+)$/.exec(here)
+  if (mon) return `${pretty(mon[1])} | Pokédex${SUFFIX}`
+
+  // Anything else is the 404, which is served as the untouched shell.
+  return SITE_TITLE
+}
+
+/**
  * Which nav item owns the current URL. Everything below the top level lives
  * under Work, so a project page highlights Work rather than nothing.
  */

@@ -56,8 +56,11 @@ function staticMeta() {
   for (const m of nav.matchAll(/path: '([^']+)', label: '([^']+)'[^}]*?hint: '([^']*)'/gs)) {
     meta.set(m[1], { title: m[2], description: m[3] })
   }
-  // projects: title/description sit above demoUrl in each entry
-  for (const block of projects.split(/\n  \{\n/).slice(1)) {
+  // projects: title/description sit above demoUrl in each entry. Split on the
+  // id line, not the opening brace: two entries can share a line (`},  {`), and
+  // a brace-based split merges them silently, which handed /games the title and
+  // description of the entry above it.
+  for (const block of projects.split(/\n\s*id: '/).slice(1)) {
     const title = /title: '((?:[^'\\]|\\.)*)'/.exec(block)?.[1]
     const desc = /description: '((?:[^'\\]|\\.)*)'/.exec(block)?.[1]
     const url = /demoUrl: '([^']+)'/.exec(block)?.[1]
